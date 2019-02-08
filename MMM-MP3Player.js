@@ -73,7 +73,7 @@ Module.register("MMM-MP3Player", {
                      myAudio.currentTime = 0;
                 }),
 
-                mediaPlayer.appendChild(player);
+                mediaPlayer.appendChild(audioPlayer);
 
             var discArea = document.createElement("div");
             discArea.className = "discArea";
@@ -116,7 +116,7 @@ Module.register("MMM-MP3Player", {
             backItem.className = "back";
             var rewind = document.createElement("i");
             rewind.className = "fa fa-backward";
-            prevButton.addEventListener("click", () => {
+            backItem.addEventListener("click", () => {
                 dataAvailable = false;
                 loadNext(false);
             }, false),
@@ -127,7 +127,7 @@ Module.register("MMM-MP3Player", {
                 playState.className = "playState";
 
                 var playButton = document.createElement("i");
-                play.className = "fa fa-play";
+                playButton.className = "fa fa-play";
                 var pause = document.createElement("i");
                 pause.className = "fa fa-pause";
                 playButton.addEventListener("click", () => {
@@ -140,14 +140,14 @@ Module.register("MMM-MP3Player", {
                         clearInterval(timer);
                     }
                 }, false),
-                playState.appendChild(play);
+                playState.appendChild(playButton);
                 playState.appendChild(pause);
                         
             var stopItem = document.createElement("button");
             stopItem.className = "stopItem";
             var stop = document.createElement("i");
             stop.className = "fa fa-stop";
-            stopButton.addEventListener("click", () => {
+            stopItem.addEventListener("click", () => {
                 playerArea.classList.remove("play");
                 audioPlayer.pause();
                 audioPlayer.currentTime = 0;
@@ -159,7 +159,7 @@ Module.register("MMM-MP3Player", {
             nextItem.className = "nextItem";
             var next = document.createElement("i");
             next.className = "fa fa-forward";    
-            nextButton.addEventListener("click", () => {
+            nextItem.addEventListener("click", () => {
                 dataAvailable = false;
                 loadNext(true);
             }, false),
@@ -215,20 +215,20 @@ Module.register("MMM-MP3Player", {
     const: volumeSlider = document.getElementById("volumeSlider"),
     let: currentIndex = 0,
     let: dataAvailable = false,
-    let: currentLength,
-    let: timer,
+    let: currentLength = 0,
+    let: timer = null,
     
-    timer = setInterval(updateDurationLabel, 100),
+    timer : setInterval(this.updateDurationLabel, 100),
     
-    function: parseTime(time) {
-        const: minutes = Math.floor(time / 60),
-        const: seconds = Math.floor(time - minutes * 60),
-        const: secondsZero = seconds < 10 ? "0" : "",
-        const: minutesZero = minutes < 10 ? "0" : "",
-        return: minutesZero + minutes.toString() + ":" + secondsZero + seconds.toString(),
+    parseTime:function(time) {
+        const minutes = Math.floor(time / 60)
+        const seconds = Math.floor(time - minutes * 60)
+        const secondsZero = seconds < 10 ? "0" : ""
+        const minutesZero = minutes < 10 ? "0" : ""
+        return minutesZero + minutes.toString() + ":" + secondsZero + seconds.toString()
     },
         // ???? --> needs work here
-        function getMusic() {
+    getMusic:    function () {
             if(!this.config.useURL) {
                 music.src = "modules/MMM-MP3Player/music/"
             } else {
@@ -236,7 +236,7 @@ Module.register("MMM-MP3Player", {
             }
         },
     
-    function loadNext(next) {
+    loadNext: function (next) {
         audioPlayer.pause();
         if (next) {
             currentIndex = (currentIndex + 1) % songs.length;
@@ -248,7 +248,7 @@ Module.register("MMM-MP3Player", {
         audioPlayer.play();
     },
     
-    function updateDurationLabel() {
+     updateDurationLabel: function() {
         if (dataAvailable) {
             durationLabel.innerText = parseTime(audioPlayer.currentTime) + " / " + parseTime(currentLength);
         } else {
