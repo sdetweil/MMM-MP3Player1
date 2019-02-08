@@ -22,6 +22,8 @@
 	width: 450px;
 	max-width: 625px;
 	height: auto;
+	margin-top: 35%;
+	margin-left: 25%;
 	display: flex;
 	flex-direction: row;
 	padding: 10px;
@@ -153,7 +155,7 @@ audio {
 	padding: 3px 0 3px 10px;
 	font-size: 1rem;
 	font-weight: 600;
-	font-family: "Englebert";
+	font-family: 'Englebert';
 	color: #7F3A2B;
 	background-color: aliceblue;
 	border-radius: 25px;
@@ -168,7 +170,7 @@ audio {
 }
 .buttons {
 	margin: 10px 0;
-	display:flex;
+	display: flex;
 	flex-direction:row;	
 }
 .buttons button {
@@ -226,7 +228,7 @@ audio {
 	padding: 3px 10px;
 	font-size: 1rem;
 	font-weight: 600;
-	font-family: "Englebert";
+	font-family: 'Englebert';
 	color: #7F3A2B;
 	background-color: aliceblue;
 	border-radius: 25px;
@@ -251,12 +253,12 @@ audio {
 	border-radius: 50%;
 	background-color: #69727B;
 	cursor: pointer;
-	margin-top: -6px;
+	margin-top: -7px;
 	border: 1px solid maroon;
 }
 
 .volumeSlider::-webkit-slider-thumb:active {
-	background-color: #555;
+	background-color: #999;
 }
 .volumeSlider::-moz-range-thumb {
 	height: 20px;
@@ -264,11 +266,8 @@ audio {
 	border-radius: 50%;
 	background-color: #69727B;
 	cursor: pointer;
-	margin-top: -6px;
-	border-top: #bbc 2px solid;
-	border-left: #ccd 2px solid;
-	border-right: #aab 2px solid;
-	border-bottom: #bbc 2px solid;
+	margin-top: -7px;
+	border: 1px solid maroon;
 }
 
 .volumeSlider::-webkit-slider-runnable-track {
@@ -276,11 +275,13 @@ audio {
 	height: 8px;
 	cursor: pointer;
 	background-color:#8B949D;
+	border: 1px solid maroon;
 	border-radius: 4px;
 	margin-top: 2px;
 }
 .volumeSlider::-webkit-slider-runnable-track:active {
-	background-color: #69727B;
+	background-color: #999;
+	border: 1px solid maroon;
 }
 
 .volumeSlider::-moz-range-track {
@@ -289,5 +290,6 @@ audio {
 	cursor: pointer;
 	background-color:#8B949D;
 	border-radius: 4px;
+	border: 1px solid maroon;
 	margin-top: 2px;
 }
