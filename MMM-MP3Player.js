@@ -110,7 +110,7 @@ Module.register("MMM-MP3Player", {
             // <audio id="audioPlayer" src="https://d34x6xks9kc6p2.cloudfront.net/540997b0-a35f-4b69-86d6-b1c925c4a264/540997b0-a35f-4b69-86d6-b1c925c4a264.mp3">
             // ???? --> needs work here
                 var audio = document.createElement("audio");
-
+        // ???? --> need to define 'audioPlayer'
                 audio.src = "MMM-MP3Player-player";
                 audio.id = "audioPlayer";
 
