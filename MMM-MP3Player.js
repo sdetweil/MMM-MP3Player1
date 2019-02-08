@@ -197,9 +197,7 @@ Module.register("MMM-MP3Player", {
 
             mediaPlayer.appendChild(controls);
 
-            mediaPlayerWrapper.appendChild(mediaPlayer);
-
-        wrapper.appendChild(mediaPlayerWrapper);
+        wrapper.appendChild(mediaPlayer);
 
         return wrapper;
     },
