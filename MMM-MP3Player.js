@@ -6,7 +6,7 @@ Module.register("MMM-MP3Player", {
   defaults: {
     songs: [],
     musicPath: "modules/MMM-MP3Player/music",
-    extensions: ["mp3", "wav"],
+    extensions: ["mp3", "wma", "acc", "ogg"],
   },
   getStyles: function(){
     return ["MMM-MP3Player.css", "font-awesome.css"];
@@ -35,9 +35,12 @@ Module.register("MMM-MP3Player", {
     stylus.appendChild(MP3.createElem("div", "head", false));
     discArea.appendChild(stylus);
     mediaPlayer.appendChild(discArea);
+
     var controls = MP3.createElem("div", "controls", false);
     controls.appendChild(MP3.createElem("span", "title", "songTitleLabel"));
+
     var buttons = MP3.createElem("div", "buttons", false);
+
     //  Previous Button
     var prev = MP3.createButton("back", "prevButton", "fa fa-backward");
     prev.addEventListener("click", () => {
@@ -45,6 +48,7 @@ Module.register("MMM-MP3Player", {
         MP3.loadNext(false);
     }, false),
     buttons.appendChild(prev);
+
     //  Play Button
     var play = MP3.createButton("play", "playButton", "fa fa-play");
     play.addEventListener("click", () => {
@@ -62,6 +66,7 @@ Module.register("MMM-MP3Player", {
         }
     }, false);
     buttons.appendChild(play);
+
     //  Stop Button
     var stop = MP3.createButton("stop", "stopButton", "fa fa-stop");
     stop.addEventListener("click", () => {
@@ -71,6 +76,7 @@ Module.register("MMM-MP3Player", {
         MP3.updateDurationLabel();
     }, false);
     buttons.appendChild(stop);
+
     //  Next Button
     var next = MP3.createButton("next", "nextButton", "fa fa-forward");
     next.addEventListener("click", () => {

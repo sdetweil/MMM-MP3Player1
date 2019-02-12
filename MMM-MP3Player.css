@@ -1,7 +1,7 @@
 
 @import url("https://fonts.googleapis.com/css?family=Englebert");
 
-.MMM-MP3Player .mediaplayer {
+.MMM-MP3Player {
 	background: linear-gradient(left, 
 		rgb(70,35,15) 0%,
 		
@@ -16,26 +16,16 @@
 		
 		rgb(85,45,30) 100%
 	);
-	background-size: 50%;
-	background-color: #000;
+
 	border: 2px solid maroon;
-	width: 450px;
-	max-width: 625px;
-	height: auto;
-	margin-top: 35%;
-	margin-left: 25%;
+	width: 500px;
+	height: 175px;
+	margin: 25% auto;
 	display: flex;
 	flex-direction: row;
 	padding: 10px;
-	box-sizing: border-box;
 	border-radius: 100px;
-}
-
-@media (max-width: 450px) {
-	.MMM-MP3Player .mediaplayer {
-		flex-direction: column;
-		border-radius: 50px;
-	}	
+	align-items: center;
 }
 
 .MMM-MP3Player .audio {
@@ -46,15 +36,16 @@
 }
 
 .MMM-MP3Player .discarea {
-	margin: 10px;
+	margin-top: 30px;
+	margin-left: 30px;
 }
 
-@media (max-width: 450px) {
+@media (max-width: 650px) {
 	.MMM-MP3Player .discarea {
-		margin:10px auto;
+		margin: 25px;
 	}
 	.MMM-MP3Player .disc {
-		margin-left: 40px;
+		margin-left: 60px;
 	}
 }
 
@@ -108,10 +99,11 @@
 .MMM-MP3Player .stylus {
 	position: relative;
 	display: block;
-	float:left;
+	float: left;
 	width: 30px;
 	height: 100px;
-	margin-left: 5px;
+	margin-left: 10px;
+	margin-right: 25px;
 	transform-origin: 15px 15px;
 	transition: transform 0.3s ease-in-out;
 }
@@ -155,51 +147,65 @@
 	width: 8px;
 	height: 15px;
 	background-color: #444;
-	top:76px;
-	left:13px;
-	border-radius:3px;
+	top: 76px;
+	left: 13px;
+	border-radius: 3px;
 	transform-origin: 50% 0;
 	transform: rotate(30deg);
 }
 
 .MMM-MP3Player .controls {
-	margin: 10px;
+	margin: 10px 0 0 20px;
 	display: flex;
-	flex-direction:column;
+	flex-direction: column;
 }
 
 .MMM-MP3Player .title {
-	width: 85%;
+	white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+	width: 250px;
+	max-width: 650px;
+	height: 20px;
 	padding: 3px 0 3px 10px;
-	font-size: 1rem;
+	font-size: 1em;
+	line-height: 85%;
 	font-weight: 600;
 	font-family: 'Englebert';
 	color: #7F3A2B;
 	background-color: aliceblue;
 	border-radius: 25px;
-	border: 1px solid maroon;
-	overflow:hidden;
 }
 
-@media (max-width: 450px) {
+.MMM-MP3Player .songTitleLabel {
+  position: absolute;
+  white-space: nowrap;
+  transform: translateX(0);
+  transition: 1s;
+}
+
+.MMM-MP3Player:hover .songTitleLabel {
+  transform: translateX(calc(200px - 100%));
+}
+
+@media (max-width: 650px) {
 	.MMM-MP3Player .title {
 		width: 100%;
-		text-align: center;
+		text-align: left;
 	}	
 }
 
 .MMM-MP3Player .buttons {
 	margin: 10px 0;
 	display: flex;
-	flex-direction:row;	
+	flex-direction: row;	
 }
 
 .MMM-MP3Player .buttons button {
-	width: 50px;
+	width: 80px;
 	height: 50px;
 	text-align: center;
 	border-radius: 50%;
-	border:none;
 	margin-right: 5px;
 	background-color: #888;
 	color: maroon;
@@ -234,7 +240,7 @@
 	display: block;
 }
 
-@media (max-width: 450px) {
+@media (max-width: 650px) {
 	.MMM-MP3Player .buttons button {
 		margin: 0 5px;
 	}
@@ -245,19 +251,12 @@
 	flex-direction: row;
 }
 
-@media (max-width: 450px) {
-	.MMM-MP3Player .subControls {
-		flex-direction: row nowrap;
-		justify-content: space-around;
-		margin-bottom: 20px;
-	}	
-}
-
 .MMM-MP3Player .duration {
-	width: 110px;
+	width: 210px;
+	height: 15px;
 	text-align: center;
-	padding: 3px 10px;
-	font-size: 1rem;
+	padding: 3px 0 30px 0;
+	font-size: 1em;
 	font-weight: 600;
 	font-family: 'Englebert';
 	color: #7F3A2B;
@@ -271,6 +270,7 @@
   -webkit-appearance: none;
   appearance: none;
   width: 65px;
+  margin-right: 25px;
   background: transparent;
 }
 
