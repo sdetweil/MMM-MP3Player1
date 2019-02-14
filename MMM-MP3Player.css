@@ -17,9 +17,9 @@
 		rgb(85,45,30) 100%
 	);
 
-	border: 2px solid maroon;
-	width: 500px;
-	height: 175px;
+	border: 4px solid maroon;
+	width: 600px;
+	height: 225px;
 	margin: 25% auto;
 	display: flex;
 	flex-direction: row;
@@ -36,13 +36,13 @@
 }
 
 .MMM-MP3Player .discarea {
-	margin-top: 30px;
-	margin-left: 30px;
+	padding-top: 60px;
+	padding-left: 30px;
 }
 
 @media (max-width: 650px) {
 	.MMM-MP3Player .discarea {
-		margin: 25px;
+		margin-top: 80px;
 	}
 	.MMM-MP3Player .disc {
 		margin-left: 60px;
@@ -58,10 +58,12 @@
 	position: relative;
 	display: block;
 	float: left;
-	width: 110px;
-	height: 110px;
+	width: 150px;
+	height: 150px;
 	background-color: #222;
 	border-radius: 50%;
+	margin-top: 30px;
+	margin-left: 15px;
 }
 
 .MMM-MP3Player .mediaplayer.play .disc {
@@ -101,9 +103,10 @@
 	display: block;
 	float: left;
 	width: 30px;
-	height: 100px;
-	margin-left: 10px;
-	margin-right: 25px;
+	height: 125px;
+	margin-left: 5px;
+	margin-right: 10px;
+	margin-top: 30px;
 	transform-origin: 15px 15px;
 	transition: transform 0.3s ease-in-out;
 }
@@ -122,8 +125,8 @@
 
 .MMM-MP3Player .arm {
 	position: absolute;
-	width:5px;
-	height:70px;
+	width: 5px;
+	height: 100px;
 	background-color: #8B949D;
 	top: 10px;
 	left: 13px;
@@ -147,7 +150,7 @@
 	width: 8px;
 	height: 15px;
 	background-color: #444;
-	top: 76px;
+	top: 106px;
 	left: 13px;
 	border-radius: 3px;
 	transform-origin: 50% 0;
@@ -162,14 +165,12 @@
 
 .MMM-MP3Player .title {
 	white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-	width: 250px;
-	max-width: 650px;
-	height: 20px;
+	overflow: hidden;
+	width: 325px;
+	height: 40px;
 	padding: 3px 0 3px 10px;
-	font-size: 1em;
-	line-height: 85%;
+	font-size: 1.2em;
+	line-height: 105%;
 	font-weight: 600;
 	font-family: 'Englebert';
 	color: #7F3A2B;
@@ -178,14 +179,37 @@
 }
 
 .MMM-MP3Player .songTitleLabel {
-  position: absolute;
-  white-space: nowrap;
-  transform: translateX(0);
-  transition: 1s;
+	text-overflow: scroll;
+	/* Starting position */
+	-moz-transform:translateX(100%);
+	-webkit-transform:translateX(100%);	
+	transform:translateX(100%);
+	/* Apply animation to this element */	
+	-moz-animation: scroll-left 5s linear infinite;
+	-webkit-animation: scroll-left 5s linear infinite;
+	animation: scroll-left 5s linear infinite;
 }
 
-.MMM-MP3Player:hover .songTitleLabel {
-  transform: translateX(calc(200px - 100%));
+/* Move it (define the animation) */
+@-moz-keyframes scroll-left {
+ 0%   { -moz-transform: translateX(100%); }
+ 100% { -moz-transform: translateX(-100%); }
+}
+@-webkit-keyframes scroll-left {
+ 0%   { -webkit-transform: translateX(100%); }
+ 100% { -webkit-transform: translateX(-100%); }
+}
+@keyframes scroll-left {
+ 0%   { 
+ -moz-transform: translateX(100%); /* Browser bug fix */
+ -webkit-transform: translateX(100%); /* Browser bug fix */
+ transform: translateX(100%); 		
+ }
+ 100% { 
+ -moz-transform: translateX(-100%); /* Browser bug fix */
+ -webkit-transform: translateX(-100%); /* Browser bug fix */
+ transform: translateX(-100%); 
+ }
 }
 
 @media (max-width: 650px) {
@@ -196,21 +220,22 @@
 }
 
 .MMM-MP3Player .buttons {
-	margin: 10px 0;
+	width: 125%;
+	margin: 20px 0;
 	display: flex;
 	flex-direction: row;	
 }
 
 .MMM-MP3Player .buttons button {
-	width: 80px;
-	height: 50px;
+	width: 105px;
+	height: 65px;
 	text-align: center;
 	border-radius: 50%;
-	margin-right: 5px;
+	margin-right: 10px;
 	background-color: #888;
 	color: maroon;
 	outline: 0;
-	font-size: 1.2rem;
+	font-size: 1em;
 	border: 1px solid;
 }
 
@@ -247,30 +272,30 @@
 }
 
 .MMM-MP3Player .subControls {
+	width: 325px;
 	display: flex;
 	flex-direction: row;
 }
 
 .MMM-MP3Player .duration {
-	width: 210px;
-	height: 15px;
+	width: 300px;
+	height: 30px;
 	text-align: center;
-	padding: 3px 0 30px 0;
-	font-size: 1em;
+	padding: 3px 0 15px 0;
+	font-size: 1.2em;
 	font-weight: 600;
 	font-family: 'Englebert';
 	color: #7F3A2B;
 	background-color: aliceblue;
 	border-radius: 25px;
-	border: 1px solid maroon;
+	border: 2px solid maroon;
 	margin-right: 10px;
 }
 
 .MMM-MP3Player .volumeSlider {
   -webkit-appearance: none;
   appearance: none;
-  width: 65px;
-  margin-right: 25px;
+  width: 85px;
   background: transparent;
 }
 

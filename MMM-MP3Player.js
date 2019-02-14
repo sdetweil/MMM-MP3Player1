@@ -6,7 +6,7 @@ Module.register("MMM-MP3Player", {
   defaults: {
     songs: [],
     musicPath: "modules/MMM-MP3Player/music",
-    extensions: ["mp3", "wma", "acc", "ogg"],
+    extensions: ["mp3", "wma", "acc", "ogg"]
   },
   getStyles: function(){
     return ["MMM-MP3Player.css", "font-awesome.css"];
@@ -18,7 +18,11 @@ Module.register("MMM-MP3Player", {
   getDom: function(){
     var wrapper = document.createElement("div");
     var mediaPlayer = MP3.createElem("div", "mediaPlayer", "mediaPlayer");
-    var audio = MP3.createElem("audio", false, "audioPlayer");
+    var audio = MP3.createElem("audio", "audioPlayer", "audioPlayer");
+    audio.load("src", "music/Chris Isaak - Wicked Game.mp3");
+    audio.addEventListener("load", function() { 
+      audio.play(); 
+    }, true);
     audio.addEventListener("loadeddata", () => {
         dataAvailable = true;
         curLength = audio.duration;
@@ -26,6 +30,8 @@ Module.register("MMM-MP3Player", {
     audio.addEventListener("ended", () => {
          audio.currentTime = 0;
     }),
+
+
     mediaPlayer.appendChild(audio);
     var discArea = MP3.createElem("div", "discArea", false);
     discArea.appendChild(MP3.createElem("div", "disc", false));
@@ -38,6 +44,7 @@ Module.register("MMM-MP3Player", {
 
     var controls = MP3.createElem("div", "controls", false);
     controls.appendChild(MP3.createElem("span", "title", "songTitleLabel"));
+    controls.title.innerHTML = this.currentSongTitle;
 
     var buttons = MP3.createElem("div", "buttons", false);
 
@@ -108,12 +115,14 @@ Module.register("MMM-MP3Player", {
 
     return wrapper;
   },
+
   createElem: function(type, className, id){
     var elem = document.createElement(type);
     if(className) elem.className = className;
     if(id)  elem.id = id;
     return elem;
   },
+
   createButton: function(className, id, icon){
     var button = document.createElement('button');
     button.className = className;
@@ -123,6 +132,7 @@ Module.register("MMM-MP3Player", {
     button.appendChild(ico);
     return button;
   },
+
   updateDurationLabel: function(){
     var audio = document.getElementById('audioPlayer');
     var duration = document.getElementById('currentDuration');
@@ -131,6 +141,7 @@ Module.register("MMM-MP3Player", {
      else
          duration.innerText = MP3.parseTime(audio.currentTime);
   },
+
   parseTime: function(time){
     const minutes = Math.floor(time / 60)
     const seconds = Math.floor(time - minutes * 60)
@@ -138,6 +149,7 @@ Module.register("MMM-MP3Player", {
     const minutesZero = minutes < 10 ? "0" : ""
     return minutesZero + minutes.toString() + ":" + secondsZero + seconds.toString()
   },
+
   loadNext: function(next){
     var audio = document.getElementById('audioPlayer');
     var title = document.getElementById('songTitleLabel');
@@ -148,10 +160,12 @@ Module.register("MMM-MP3Player", {
       title.innerHTML = MP3.config.songs[curSong].substr(0, MP3.config.songs[curSong].length - 4);
       audio.play();
   },
+
   notificationReceived: function (notification, payload) {
     if(notification === "ALL_MODULES_STARTED")
 		  MP3.sendSocketNotification('SOURCE_MUSIC', MP3.config);
-	},
+  },
+  
   socketNotificationReceived: function(notification, payload){
     if(notification === "RETURNED_MUSIC")
       MP3.config.songs = payload.songs;
