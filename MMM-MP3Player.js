@@ -8,31 +8,32 @@ Module.register("MMM-MP3Player", {
     musicPath: "modules/MMM-MP3Player/music",
     extensions: ["mp3", "wma", "acc", "ogg"]
   },
+
   getStyles: function(){
     return ["MMM-MP3Player.css", "font-awesome.css"];
   },
+
   start: function(){
     MP3 = this;
     Log.info("Starting module: " + MP3.name);
   },
+
   getDom: function(){
     var wrapper = document.createElement("div");
     var mediaPlayer = MP3.createElem("div", "mediaPlayer", "mediaPlayer");
     var audio = MP3.createElem("audio", "audioPlayer", "audioPlayer");
-    audio.load("src", "music/Chris Isaak - Wicked Game.mp3");
-    audio.addEventListener("load", function() { 
+    audio.addEventListener("load", function() {
       audio.play(); 
     }, true);
     audio.addEventListener("loadeddata", () => {
-        dataAvailable = true;
-        curLength = audio.duration;
+      dataAvailable = true;
+      curLength = audio.duration;
     }),
     audio.addEventListener("ended", () => {
-         audio.currentTime = 0;
+      audio.currentTime = 0;
     }),
-
-
     mediaPlayer.appendChild(audio);
+    
     var discArea = MP3.createElem("div", "discArea", false);
     discArea.appendChild(MP3.createElem("div", "disc", false));
     var stylus = MP3.createElem("div", "stylus", false);
@@ -43,8 +44,9 @@ Module.register("MMM-MP3Player", {
     mediaPlayer.appendChild(discArea);
 
     var controls = MP3.createElem("div", "controls", false);
-    controls.appendChild(MP3.createElem("span", "title", "songTitleLabel"));
-    controls.title.innerHTML = this.currentSongTitle;
+    var title = MP3.createElem("span", "title", "songTitleLabel");
+    title.innerHTML = this.currentSongTitle;
+    controls.appendChild(title);
 
     var buttons = MP3.createElem("div", "buttons", false);
 
