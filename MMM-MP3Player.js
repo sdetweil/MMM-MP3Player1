@@ -50,39 +50,48 @@ Module.register("MMM-MP3Player", {
 
     var buttons = MP3.createElem("div", "buttons", false);
 
+    /*
+    // Shuffle Button
+    var shuffle = MP3.createElem("random", "randButton", "fa fa-random");
+    shuffle.addListener("click", () => {
+      mediaPlayer.classList.toggle("random");
+      audio.random();
+    })
+    */
+
     //  Previous Button
     var prev = MP3.createButton("back", "prevButton", "fa fa-backward");
     prev.addEventListener("click", () => {
-        dataAvailable = false;
-        MP3.loadNext(false);
+      dataAvailable = false;
+      MP3.loadNext(false);
     }, false),
     buttons.appendChild(prev);
 
     //  Play Button
     var play = MP3.createButton("play", "playButton", "fa fa-play");
     play.addEventListener("click", () => {
-        mediaPlayer.classList.toggle("play");
-        if (audio.paused) {
-            setTimeout(() => {
-                audio.play();
-            }, 300);
-            timer = setInterval(MP3.updateDurationLabel, 100);
-            play.getElementsByTagName('i')[0].className = "fa fa-pause";
-        } else {
-            audio.pause();
-            clearInterval(timer);
-            play.getElementsByTagName('i')[0].className = "fa fa-play";
-        }
+      mediaPlayer.classList.toggle("play");
+      if (audio.paused) {
+        setTimeout(() => {
+          audio.play();
+        }, 300);
+        timer = setInterval(MP3.updateDurationLabel, 100);
+        play.getElementsByTagName('i')[0].className = "fa fa-pause";
+      } else {
+        audio.pause();
+        clearInterval(timer);
+        play.getElementsByTagName('i')[0].className = "fa fa-play";
+      }
     }, false);
     buttons.appendChild(play);
 
     //  Stop Button
     var stop = MP3.createButton("stop", "stopButton", "fa fa-stop");
     stop.addEventListener("click", () => {
-        mediaPlayer.classList.remove("play");
-        audio.pause();
-        audio.currentTime = 0;
-        MP3.updateDurationLabel();
+      mediaPlayer.classList.remove("play");
+      audio.pause();
+      audio.currentTime = 0;
+      MP3.updateDurationLabel();
     }, false);
     buttons.appendChild(stop);
 
@@ -98,7 +107,7 @@ Module.register("MMM-MP3Player", {
 
     var subControls = MP3.createElem("div", "subControls", false);
     var duration = MP3.createElem("span", "duration", "currentDuration");
-    duration.innerHTML = "00:00";
+    duration.innerHTML = "00:00" + "&nbsp&nbsp&nbsp";
     subControls.appendChild(duration);
 
     var volumeSlider = MP3.createElem("input", "volumeSlider", "volumeSlider");
