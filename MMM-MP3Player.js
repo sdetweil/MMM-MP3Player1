@@ -16,7 +16,8 @@ Module.register("MMM-MP3Player", {
   curSong :0,
   curLength : 0,
   time: null,
-
+  play: null,
+  firstTime: true,
   
   
   getStyles: function(){
@@ -65,7 +66,7 @@ Module.register("MMM-MP3Player", {
       var controls = MP3.createElement("div", "controls", false);
       MP3.songTitle = MP3.createElement("span", "title", "songTitleLabel");
       MP3.setCurrentSong(MP3.curSong);
-      MP3.songTitle.innerHTML = this.currentSongTitle;
+      //MP3.songTitle.innerHTML = this.currentSongTitle;
       controls.appendChild(MP3.songTitle);
 
       var buttons = MP3.createElement("div", "buttons", false);
@@ -88,22 +89,22 @@ Module.register("MMM-MP3Player", {
       buttons.appendChild(prev);
 
       //  Play Button
-      var play = MP3.createButton("play", "playButton", "fa fa-play");
-      play.addEventListener("click", () => {
+      MP3.play = MP3.createButton("play", "playButton", "fa fa-play");
+      MP3.play.addEventListener("click", () => {
         MP3.mediaPlayer.classList.toggle("play");
         if (MP3.audio.paused) {
           setTimeout(() => {
             MP3.audio.play();
           }, 300);
           MP3.timer = setInterval(MP3.updateDurationLabel, 100);
-          play.getElementsByTagName('i')[0].className = "fa fa-pause";
+          MP3.play.getElementsByTagName('i')[0].className = "fa fa-pause";
         } else {
           MP3.audio.pause();
           clearInterval(MP3.timer);
-          play.getElementsByTagName('i')[0].className = "fa fa-play";
+          MP3.play.getElementsByTagName('i')[0].className = "fa fa-play";
         }
       }, false);
-      buttons.appendChild(play);
+      buttons.appendChild(MP3.play);
 
       //  Stop Button
       var stop = MP3.createButton("stop", "stopButton", "fa fa-stop");
@@ -112,6 +113,7 @@ Module.register("MMM-MP3Player", {
         MP3.audio.pause();
         MP3.audio.currentTime = 0;
         MP3.updateDurationLabel();
+        MP3.play.getElementsByTagName('i')[0].className = "fa fa-play";
       }, false);
       buttons.appendChild(stop);
 
@@ -143,7 +145,12 @@ Module.register("MMM-MP3Player", {
       controls.appendChild(subControls);
       MP3.mediaPlayer.appendChild(controls);
       wrapper.appendChild(MP3.mediaPlayer);
-    }
+
+      if(MP3.firstTime && MP3.config.autoPlay){
+        MP3.firstTime=false;
+        MP3.play.dispatchEvent(new Event("click"));
+      }
+    }    
     return wrapper;
   },
 
