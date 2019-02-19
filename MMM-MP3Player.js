@@ -1,14 +1,25 @@
-var MP3, timer;
-var curSong = curLength = 0;
-var dataAvailable = false;
+var MP3;
 
 Module.register("MMM-MP3Player", {
   defaults: {
     songs: [],
     musicPath: "modules/MMM-MP3Player/music",
-    extensions: ["mp3", "wma", "acc", "ogg"]
+    extensions: ["mp3", "wma", "acc", "ogg"],
+    songs: null,
+    autoPlay: true,
+    random: true,
   },
-
+  audio: null,
+  songTitle: null,
+  mediaPlayer: null,
+  dataAvailable :false,
+  curSong :0,
+  curLength : 0,
+  time: null,
+  play: null,
+  firstTime: true,
+  
+  
   getStyles: function(){
     return ["MMM-MP3Player.css", "font-awesome.css"];
   },
@@ -20,114 +31,130 @@ Module.register("MMM-MP3Player", {
 
   getDom: function(){
     var wrapper = document.createElement("div");
-    var mediaPlayer = MP3.createElem("div", "mediaPlayer", "mediaPlayer");
-    var audio = MP3.createElem("audio", "audioPlayer", "audioPlayer");
-    audio.addEventListener("load", function() {
-      audio.play(); 
-    }, true);
-    audio.addEventListener("loadeddata", () => {
-      dataAvailable = true;
-      curLength = audio.duration;
-    }),
-    audio.addEventListener("ended", () => {
-      audio.currentTime = 0;
-    }),
-    mediaPlayer.appendChild(audio);
-    
-    var discArea = MP3.createElem("div", "discArea", false);
-    discArea.appendChild(MP3.createElem("div", "disc", false));
-    var stylus = MP3.createElem("div", "stylus", false);
-    stylus.appendChild(MP3.createElem("div", "pivot", false));
-    stylus.appendChild(MP3.createElem("div", "arm", false));
-    stylus.appendChild(MP3.createElem("div", "head", false));
-    discArea.appendChild(stylus);
-    mediaPlayer.appendChild(discArea);
+    if(MP3.config.songs!=null){
+      // save he mediaplayer object, needed later
+      MP3.mediaPlayer = MP3.createElement("div", "mediaPlayer", "mediaPlayer");
+      MP3.audio = MP3.createElement("audio", "audioPlayer", "audioPlayer");
+      MP3.audio.addEventListener("load", function() {
+        MP3.audio.play(); 
+      }, true);
+      MP3.audio.addEventListener("loadeddata", () => {
+        MP3.dataAvailable = true;
+        MP3.curLength = MP3.audio.duration;
+      }),
+      MP3.audio.addEventListener("ended", () => {
+        Log.log(" play ended")
+        MP3.audio.currentTime = 0;
+        if(MP3.config.autoPlay)
+        {
+          MP3.loadNext(MP3.config.random)
+        }
+        else
+          MP3.mediaPlayer.classList.toggle("play");
+      }),
+      MP3.mediaPlayer.appendChild(MP3.audio);
+      
+      var discArea = MP3.createElement("div", "discArea", false);
+      discArea.appendChild(MP3.createElement("div", "disc", false));
+      var stylus = MP3.createElement("div", "stylus", false);
+      stylus.appendChild(MP3.createElement("div", "pivot", false));
+      stylus.appendChild(MP3.createElement("div", "arm", false));
+      stylus.appendChild(MP3.createElement("div", "head", false));
+      discArea.appendChild(stylus);
+      MP3.mediaPlayer.appendChild(discArea);
 
-    var controls = MP3.createElem("div", "controls", false);
-    var title = MP3.createElem("span", "title", "songTitleLabel");
-    title.innerHTML = this.currentSongTitle;
-    controls.appendChild(title);
+      var controls = MP3.createElement("div", "controls", false);
+      MP3.songTitle = MP3.createElement("span", "title", "songTitleLabel");
+      MP3.setCurrentSong(MP3.curSong);
+      //MP3.songTitle.innerHTML = this.currentSongTitle;
+      controls.appendChild(MP3.songTitle);
 
-    var buttons = MP3.createElem("div", "buttons", false);
+      var buttons = MP3.createElement("div", "buttons", false);
 
-    /*
-    // Shuffle Button
-    var shuffle = MP3.createElem("random", "randButton", "fa fa-random");
-    shuffle.addListener("click", () => {
-      mediaPlayer.classList.toggle("random");
-      audio.random();
-    })
-    */
+      /*
+      // Shuffle Button
+      var shuffle = MP3.createElement("random", "randButton", "fa fa-random");
+      shuffle.addListener("click", () => {
+        MP3.mediaPlayer.classList.toggle("random");
+        audio.random();
+      })
+      */
 
-    //  Previous Button
-    var prev = MP3.createButton("back", "prevButton", "fa fa-backward");
-    prev.addEventListener("click", () => {
-      dataAvailable = false;
-      MP3.loadNext(false);
-    }, false),
-    buttons.appendChild(prev);
+      //  Previous Button
+      var prev = MP3.createButton("back", "prevButton", "fa fa-backward");
+      prev.addEventListener("click", () => {
+        MP3.dataAvailable = false;
+        MP3.loadNext(MP3.config.random);
+      }, false),
+      buttons.appendChild(prev);
 
-    //  Play Button
-    var play = MP3.createButton("play", "playButton", "fa fa-play");
-    play.addEventListener("click", () => {
-      mediaPlayer.classList.toggle("play");
-      if (audio.paused) {
-        setTimeout(() => {
-          audio.play();
-        }, 300);
-        timer = setInterval(MP3.updateDurationLabel, 100);
-        play.getElementsByTagName('i')[0].className = "fa fa-pause";
-      } else {
-        audio.pause();
-        clearInterval(timer);
-        play.getElementsByTagName('i')[0].className = "fa fa-play";
+      //  Play Button
+      MP3.play = MP3.createButton("play", "playButton", "fa fa-play");
+      MP3.play.addEventListener("click", () => {
+        MP3.mediaPlayer.classList.toggle("play");
+        if (MP3.audio.paused) {
+          setTimeout(() => {
+            MP3.audio.play();
+          }, 300);
+          MP3.timer = setInterval(MP3.updateDurationLabel, 100);
+          MP3.play.getElementsByTagName('i')[0].className = "fa fa-pause";
+        } else {
+          MP3.audio.pause();
+          clearInterval(MP3.timer);
+          MP3.play.getElementsByTagName('i')[0].className = "fa fa-play";
+        }
+      }, false);
+      buttons.appendChild(MP3.play);
+
+      //  Stop Button
+      var stop = MP3.createButton("stop", "stopButton", "fa fa-stop");
+      stop.addEventListener("click", () => {
+        MP3.mediaPlayer.classList.remove("play");
+        MP3.audio.pause();
+        MP3.audio.currentTime = 0;
+        MP3.updateDurationLabel();
+        MP3.play.getElementsByTagName('i')[0].className = "fa fa-play";
+      }, false);
+      buttons.appendChild(stop);
+
+      //  Next Button
+      var next = MP3.createButton("next", "nextButton", "fa fa-forward");
+      next.addEventListener("click", () => {
+          MP3.dataAvailable = false;
+          MP3.loadNext(MP3.config.random);
+      }, false);
+      buttons.appendChild(next);
+
+      controls.appendChild(buttons);
+
+      var subControls = MP3.createElement("div", "subControls", false);
+      var duration = MP3.createElement("span", "duration", "currentDuration");
+      duration.innerHTML = "00:00" + "&nbsp&nbsp&nbsp";
+      subControls.appendChild(duration);
+
+      var volumeSlider = MP3.createElement("input", "volumeSlider", "volumeSlider");
+      volumeSlider.type = "range";
+      volumeSlider.min = "0";
+      volumeSlider.max = "1";
+      volumeSlider.step = "0.01";
+      volumeSlider.addEventListener("input", () => {
+          MP3.audio.volume = parseFloat(volumeSlider.value);
+      }, false);
+
+      subControls.appendChild(volumeSlider);
+      controls.appendChild(subControls);
+      MP3.mediaPlayer.appendChild(controls);
+      wrapper.appendChild(MP3.mediaPlayer);
+
+      if(MP3.firstTime && MP3.config.autoPlay){
+        MP3.firstTime=false;
+        MP3.play.dispatchEvent(new Event("click"));
       }
-    }, false);
-    buttons.appendChild(play);
-
-    //  Stop Button
-    var stop = MP3.createButton("stop", "stopButton", "fa fa-stop");
-    stop.addEventListener("click", () => {
-      mediaPlayer.classList.remove("play");
-      audio.pause();
-      audio.currentTime = 0;
-      MP3.updateDurationLabel();
-    }, false);
-    buttons.appendChild(stop);
-
-    //  Next Button
-    var next = MP3.createButton("next", "nextButton", "fa fa-forward");
-    next.addEventListener("click", () => {
-        dataAvailable = false;
-        MP3.loadNext(true);
-    }, false);
-    buttons.appendChild(next);
-
-    controls.appendChild(buttons);
-
-    var subControls = MP3.createElem("div", "subControls", false);
-    var duration = MP3.createElem("span", "duration", "currentDuration");
-    duration.innerHTML = "00:00" + "&nbsp&nbsp&nbsp";
-    subControls.appendChild(duration);
-
-    var volumeSlider = MP3.createElem("input", "volumeSlider", "volumeSlider");
-    volumeSlider.type = "range";
-    volumeSlider.min = "0";
-    volumeSlider.max = "1";
-    volumeSlider.step = "0.01";
-    volumeSlider.addEventListener("input", () => {
-        audio.volume = parseFloat(volumeSlider.value);
-    }, false);
-
-    subControls.appendChild(volumeSlider);
-    controls.appendChild(subControls);
-    mediaPlayer.appendChild(controls);
-    wrapper.appendChild(mediaPlayer);
-
+    }    
     return wrapper;
   },
 
-  createElem: function(type, className, id){
+  createElement: function(type, className, id){
     var elem = document.createElement(type);
     if(className) elem.className = className;
     if(id)  elem.id = id;
@@ -145,12 +172,11 @@ Module.register("MMM-MP3Player", {
   },
 
   updateDurationLabel: function(){
-    var audio = document.getElementById('audioPlayer');
     var duration = document.getElementById('currentDuration');
-     if(dataAvailable)
-         duration.innerText = MP3.parseTime(audio.currentTime) + " / " + MP3.parseTime(curLength);
+     if(MP3.dataAvailable)
+         duration.innerText = MP3.parseTime(MP3.audio.currentTime) + " / " + MP3.parseTime(MP3.curLength);
      else
-         duration.innerText = MP3.parseTime(audio.currentTime);
+         duration.innerText = MP3.parseTime(MP3.audio.currentTime);
   },
 
   parseTime: function(time){
@@ -160,16 +186,24 @@ Module.register("MMM-MP3Player", {
     const minutesZero = minutes < 10 ? "0" : ""
     return minutesZero + minutes.toString() + ":" + secondsZero + seconds.toString()
   },
-
+  
+  setCurrentSong: function(index){
+      if(MP3.audio!= undefined){
+        MP3.audio.src = MP3.config.musicPath + '/' + MP3.config.songs[index];
+        Log.log("music filename="+MP3.config.songs[index]);
+        MP3.songTitle.innerHTML = MP3.config.songs[index].substr(0, MP3.config.songs[index].length - 4);
+        MP3.curSong = index;
+      }
+  },
   loadNext: function(next){
-    var audio = document.getElementById('audioPlayer');
-    var title = document.getElementById('songTitleLabel');
-      audio.pause();
-      if(next)  curSong = (curSong + 1) % MP3.config.songs.length;
-      else      curSong = (curSong - 1) < 0 ? MP3.config.songs.length - 1 : curSong - 1;
-      audio.src = MP3.config.musicPath + '/' + MP3.config.songs[curSong];
-      title.innerHTML = MP3.config.songs[curSong].substr(0, MP3.config.songs[curSong].length - 4);
-      audio.play();
+   // var audio = document.getElementById('audioPlayer');
+   // var title = document.getElementById('songTitleLabel');
+   let index=0;
+      MP3.audio.pause();
+      if(next)  index= (MP3.curSong + 1) % MP3.config.songs.length;
+      else      index = (MP3.curSong - 1) < 0 ? MP3.config.songs.length - 1 : MP3.curSong - 1;
+      MP3.setCurrentSong(index);
+      MP3.audio.play();
   },
 
   notificationReceived: function (notification, payload) {
@@ -180,5 +214,9 @@ Module.register("MMM-MP3Player", {
   socketNotificationReceived: function(notification, payload){
     if(notification === "RETURNED_MUSIC")
       MP3.config.songs = payload.songs;
+      // set the initial song index 
+      MP3.setCurrentSong(0);
+      // paint the player
+      MP3.updateDom(2);
   },
 });
