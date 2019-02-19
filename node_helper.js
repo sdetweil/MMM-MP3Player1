@@ -18,6 +18,7 @@ module.exports = NodeHelper.create({
     for(var i = 0; i < contents.length; i++){
       songs.push(contents[i]);
     }
+    console.log("mp3 player returning song list="+ songs)
     return songs;
   },
   checkExt: function(file, ext){
