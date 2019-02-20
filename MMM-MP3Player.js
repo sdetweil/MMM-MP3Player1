@@ -35,6 +35,7 @@ Module.register("MMM-MP3Player", {
       // save he mediaplayer object, needed later
       MP3.mediaPlayer = MP3.createElement("div", "mediaPlayer", "mediaPlayer");
       MP3.audio = MP3.createElement("audio", "audioPlayer", "audioPlayer");
+      MP3.audio.setAttribute("autoplay","true");
       MP3.audio.addEventListener("load", function() {
         MP3.audio.play(); 
       }, true);
@@ -54,7 +55,7 @@ Module.register("MMM-MP3Player", {
       }),
       MP3.mediaPlayer.appendChild(MP3.audio);
       
-      var discArea = MP3.createElement("div", "discArea", false);
+      var discArea = MP3.createElement("div", "discarea", false);
       discArea.appendChild(MP3.createElement("div", "disc", false));
       var stylus = MP3.createElement("div", "stylus", false);
       stylus.appendChild(MP3.createElement("div", "pivot", false));
@@ -148,7 +149,8 @@ Module.register("MMM-MP3Player", {
 
       if(MP3.firstTime && MP3.config.autoPlay){
         MP3.firstTime=false;
-        MP3.play.dispatchEvent(new Event("click"));
+        //MP3.play.click();
+        //MP3.play.dispatchEvent(new Event("click"));
       }
     }    
     return wrapper;
@@ -190,14 +192,11 @@ Module.register("MMM-MP3Player", {
   setCurrentSong: function(index){
       if(MP3.audio!= undefined){
         MP3.audio.src = MP3.config.musicPath + '/' + MP3.config.songs[index];
-        Log.log("music filename="+MP3.config.songs[index]);
         MP3.songTitle.innerHTML = MP3.config.songs[index].substr(0, MP3.config.songs[index].length - 4);
         MP3.curSong = index;
       }
   },
   loadNext: function(next){
-   // var audio = document.getElementById('audioPlayer');
-   // var title = document.getElementById('songTitleLabel');
    let index=0;
       MP3.audio.pause();
       if(next)  index= (MP3.curSong + 1) % MP3.config.songs.length;
