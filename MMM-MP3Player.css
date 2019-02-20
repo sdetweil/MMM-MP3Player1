@@ -1,9 +1,9 @@
 @import url("https://fonts.googleapis.com/css?family=Englebert");
 
-.MMM-MP3Player  mediaPlayer{
+.MMM-MP3Player  .mediaPlayer {
 	border: 4px solid maroon;
 	width: 600px;
-	height: 220px;
+	height: 235px;
 	margin: 150px auto;
 	display: flex;
 	flex-direction: row;
@@ -20,8 +20,7 @@
 }
 
 .MMM-MP3Player .discarea {
-	padding-top: 60px;
-	padding-left: 30px;
+	padding-left: 5px;
 }
 
 @-webkit-keyframes spinDisc {
@@ -57,8 +56,8 @@
 	height: 150px;
 	background-color: #222;
 	border-radius: 50%;
-	margin-top: 20px;
-	margin-left: 15px;
+	margin-top: 5px;
+	margin-left: 5px;
 }
 
 .MMM-MP3Player .mediaPlayer.play .disc {
@@ -184,7 +183,7 @@
 
 .MMM-MP3Player .title {
 	white-space: nowrap;
-	overflow: scroll;
+	overflow: hidden;
 	width: 325px;
 	height: 40px;
 	padding: 3px 0 3px 10px;
@@ -197,8 +196,8 @@
 	border-radius: 25px;
 }
 
-.MMM-MP3Player .songTitleLabel {
-	text-overflow: scroll;
+.MMM-MP3Player .songTitle {
+	text-overflow: hidden;
 	/* Starting position */
 	-webkit-transform:translateX(100%);	
 	-moz-transform:translateX(100%);
@@ -251,13 +250,6 @@
  	}
 }
 
-@media (max-width: 650px) {
-	.MMM-MP3Player .title {
-		width: 100%;
-		text-align: left;
-	}	
-}
-
 .MMM-MP3Player .buttons {
 	width: 125%;
 	margin: 20px 0;
@@ -266,7 +258,7 @@
 }
 
 .MMM-MP3Player .buttons button {
-	width: 105px;
+	width: 65px;
 	height: 65px;
 	text-align: center;
 	border-radius: 50%;

@@ -31,30 +31,35 @@ Module.register("MMM-MP3Player", {
 
   getDom: function(){
     var wrapper = document.createElement("div");
-    if(MP3.config.songs!=null){
-      // save he mediaplayer object, needed later
-      MP3.mediaPlayer = MP3.createElement("div", "mediaPlayer", "mediaPlayer");
-      MP3.audio = MP3.createElement("audio", "audioPlayer", "audioPlayer");
-      MP3.audio.setAttribute("autoplay","true");
-      MP3.audio.addEventListener("load", function() {
-        MP3.audio.play(); 
-      }, true);
-      MP3.audio.addEventListener("loadeddata", () => {
-        MP3.dataAvailable = true;
-        MP3.curLength = MP3.audio.duration;
-      }),
-      MP3.audio.addEventListener("ended", () => {
-        Log.log(" play ended")
-        MP3.audio.currentTime = 0;
-        if(MP3.config.autoPlay)
-        {
-          MP3.loadNext(MP3.config.random)
-        }
-        else
-          MP3.mediaPlayer.classList.toggle("play");
-      }),
-      MP3.mediaPlayer.appendChild(MP3.audio);
-      
+      if(MP3.config.songs!=null) {
+        MP3.mediaPlayer = MP3.createElement("div", "mediaPlayer", "mediaPlayer");
+        MP3.audio = MP3.createElement("audio", "audioPlayer", "audioPlayer");
+        MP3.audio.setAttribute("autoplay","true");
+        MP3.audio.addEventListener("load", function() {
+          MP3.audio.play(); 
+        }, true);
+        MP3.audio.addEventListener("loadeddata", () => {
+          MP3.dataAvailable = true;
+          MP3.curLength = MP3.audio.duration;
+        }),
+        MP3.audio.addEventListener("ended", () => {
+          Log.log(" play ended")
+          MP3.audio.currentTime = 0;
+          if(MP3.config.autoPlay)
+          {
+            MP3.loadNext(MP3.config.random)
+          }
+          else
+            MP3.mediaPlayer.classList.toggle("play");
+        }),
+        MP3.mediaPlayer.appendChild(MP3.audio);
+      }
+
+      var controls = MP3.createElement("div", "controls", false);
+      MP3.songTitle = MP3.createElement("span", "title", "songTitle");
+      MP3.setCurrentSong(MP3.curSong);
+      controls.appendChild(MP3.songTitle);
+
       var discArea = MP3.createElement("div", "discarea", false);
       discArea.appendChild(MP3.createElement("div", "disc", false));
       var stylus = MP3.createElement("div", "stylus", false);
@@ -64,28 +69,14 @@ Module.register("MMM-MP3Player", {
       discArea.appendChild(stylus);
       MP3.mediaPlayer.appendChild(discArea);
 
-      var controls = MP3.createElement("div", "controls", false);
-      MP3.songTitle = MP3.createElement("span", "title", "songTitleLabel");
-      MP3.setCurrentSong(MP3.curSong);
-      //MP3.songTitle.innerHTML = this.currentSongTitle;
-      controls.appendChild(MP3.songTitle);
-
       var buttons = MP3.createElement("div", "buttons", false);
-
-      /*
-      // Shuffle Button
-      var shuffle = MP3.createElement("random", "randButton", "fa fa-random");
-      shuffle.addListener("click", () => {
-        MP3.mediaPlayer.classList.toggle("random");
-        audio.random();
-      })
-      */
 
       //  Previous Button
       var prev = MP3.createButton("back", "prevButton", "fa fa-backward");
       prev.addEventListener("click", () => {
         MP3.dataAvailable = false;
         MP3.loadNext(MP3.config.random);
+        MP3.play.getElementsByTagName('i')[0].className = "fa fa-pause";
       }, false),
       buttons.appendChild(prev);
 
@@ -123,6 +114,7 @@ Module.register("MMM-MP3Player", {
       next.addEventListener("click", () => {
           MP3.dataAvailable = false;
           MP3.loadNext(MP3.config.random);
+          MP3.play.getElementsByTagName('i')[0].className = "fa fa-pause";
       }, false);
       buttons.appendChild(next);
 
@@ -149,10 +141,7 @@ Module.register("MMM-MP3Player", {
 
       if(MP3.firstTime && MP3.config.autoPlay){
         MP3.firstTime=false;
-        //MP3.play.click();
-        //MP3.play.dispatchEvent(new Event("click"));
       }
-    }    
     return wrapper;
   },
 
