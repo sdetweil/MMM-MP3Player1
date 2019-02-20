@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css?family=Englebert");
 
-.MMM-MP3Player {
+.MMM-MP3Player  mediaPlayer{
 	border: 4px solid maroon;
 	width: 600px;
 	height: 220px;
@@ -61,7 +61,7 @@
 	margin-left: 15px;
 }
 
-.MMM-MP3Player .mediaplayer.play .disc {
+.MMM-MP3Player .mediaPlayer.play .disc {
 	-webkit-animation: spinDisc 2s linear 0.3s infinite forwards;
 	-moz-animation: spinDisc 2s linear 0.3s infinite forwards;
 	-ms-animation: spinDisc 2s linear 0.3s infinite forwards;
@@ -118,7 +118,7 @@
 	transition: transform 0.3s ease-in-out;
 }
 
-.MMM-MP3Player .mediaplayer.play .stylus {
+.MMM-MP3Player .mediaPlayer.play .stylus {
 	-webkit-transform: rotate(34deg);
 	-moz-transform: rotate(34deg);
 	-ms-transform: rotate(34deg);
@@ -301,16 +301,16 @@
 }
 */
 
-.MMM-MP3Player .mediaplayer.play .playstate {
+.MMM-MP3Player .mediaPlayer.play .playstate {
 	background-color: rgb(170, 33, 33);
 }
 
 .MMM-MP3Player .playstate .fa-pause,
-.MMM-MP3Player .mediaplayer.play .playstate .fa-play {
+.MMM-MP3Player .mediaPlayer.play .playstate .fa-play {
 	display: none;
 }
 
-.MMM-MP3Player .mediaplayer.play .fa-pause {
+.MMM-MP3Player .mediaPlayer.play .fa-pause {
 	display: block;
 }
 
