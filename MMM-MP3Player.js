@@ -1,5 +1,24 @@
-var MP3;
+/* MagicMIrror Module - MMM-MP3Player
+ *
+ * This is a 3rd Party Module for the [MagicMirror² By Michael Teeuw http://michaelteeuw.nl]
+ * (https://github.com/MichMich/MagicMirror/).
+ *
+ * A mp3 player -- 
+ * can use a url or a local directory (music) 
+ *
+ * NOT tested with Raspberry Pi.
+ * It DOES work with Windows 10!!!
+ *
+ * version: 1.0.0
+ *
+ * Module created by @justjim1220 @Seann & @sdetweil
+ *
+ * Licensed with a crapload of good ole' Southern Sweet Tea
+ * and a lot of Cheyenne Extreme Menthol cigars!!!
+ */
 
+var MP3;
+var substr;
 Module.register("MMM-MP3Player", {
   defaults: {
     songs: [],
@@ -18,7 +37,7 @@ Module.register("MMM-MP3Player", {
   time: null,
   play: null,
   firstTime: true,
-  
+  substr: null,
   
   getStyles: function(){
     return ["MMM-MP3Player.css", "font-awesome.css"];
@@ -74,8 +93,10 @@ Module.register("MMM-MP3Player", {
       //  Previous Button
       var prev = MP3.createButton("back", "prevButton", "fa fa-backward");
       prev.addEventListener("click", () => {
+        MP3.mediaPlayer.classList.toggle("play");
         MP3.dataAvailable = false;
         MP3.loadNext(MP3.config.random);
+        MP3.audio.play();
         MP3.play.getElementsByTagName('i')[0].className = "fa fa-pause";
       }, false),
       buttons.appendChild(prev);
@@ -88,12 +109,13 @@ Module.register("MMM-MP3Player", {
           setTimeout(() => {
             MP3.audio.play();
           }, 300);
-          MP3.timer = setInterval(MP3.updateDurationLabel, 100);
           MP3.play.getElementsByTagName('i')[0].className = "fa fa-pause";
+          MP3.timer = setInterval(MP3.updateDurationLabel, 100);
         } else {
-          MP3.audio.pause();
-          clearInterval(MP3.timer);
+          //MP3.loadNext(MP3.config.random);
           MP3.play.getElementsByTagName('i')[0].className = "fa fa-play";
+          clearInterval(MP3.timer);
+          MP3.audio.pause();
         }
       }, false);
       buttons.appendChild(MP3.play);
@@ -104,17 +126,18 @@ Module.register("MMM-MP3Player", {
         MP3.mediaPlayer.classList.remove("play");
         MP3.audio.pause();
         MP3.audio.currentTime = 0;
-        MP3.updateDurationLabel();
         MP3.play.getElementsByTagName('i')[0].className = "fa fa-play";
+        MP3.updateDurationLabel();
       }, false);
       buttons.appendChild(stop);
 
       //  Next Button
       var next = MP3.createButton("next", "nextButton", "fa fa-forward");
       next.addEventListener("click", () => {
-          MP3.dataAvailable = false;
-          MP3.loadNext(MP3.config.random);
-          MP3.play.getElementsByTagName('i')[0].className = "fa fa-pause";
+        MP3.mediaPlayer.classList.toggle("play");
+        MP3.dataAvailable = false;
+        MP3.loadNext(MP3.config.random);
+        MP3.play.getElementsByTagName('i')[0].className = "fa fa-play";
       }, false);
       buttons.appendChild(next);
 
@@ -167,7 +190,7 @@ Module.register("MMM-MP3Player", {
      if(MP3.dataAvailable)
          duration.innerText = MP3.parseTime(MP3.audio.currentTime) + " / " + MP3.parseTime(MP3.curLength);
      else
-         duration.innerText = MP3.parseTime(MP3.audio.currentTime);
+         duration.innerText = MP3.parseTime(MP3.audio.currentTime).substr(0, MP3.config.songs[index].length - 4);
   },
 
   parseTime: function(time){

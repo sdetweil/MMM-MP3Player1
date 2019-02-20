@@ -4,7 +4,7 @@
 	border: 4px solid maroon;
 	width: 600px;
 	height: 235px;
-	margin: 150px auto;
+	margin: 25px auto;
 	display: flex;
 	flex-direction: row;
 	padding: 10px;
@@ -176,7 +176,7 @@
 }
 
 .MMM-MP3Player .controls {
-	margin: 10px 0 0 20px;
+	margin: 10px 0 0 10px;
 	display: flex;
 	flex-direction: column;
 }
@@ -186,12 +186,12 @@
 	overflow: hidden;
 	width: 325px;
 	height: 40px;
-	padding: 3px 0 3px 10px;
+	padding: 3px 0 3px 5px;
 	font-size: 1.2em;
 	line-height: 105%;
 	font-weight: 600;
 	font-family: 'Englebert';
-	color: #7F3A2B;
+	color: maroon;
 	background-color: aliceblue;
 	border-radius: 25px;
 }
