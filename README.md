@@ -23,13 +23,13 @@ npm install<br>
 ## Usage:
 
 {<br>
-   disabled: false,<br>
-   module: "MMM-MP3Player",<br>
-   position: "top_right",<br>
-   config: {<br>
-     autoplay: true,<br>
-     randomOrder: true,<br>
-   }<br>
+    disabled: false,<br>
+    module: "MMM-MP3Player",<br>
+    position: "top_right",<br>
+    config: {<br>
+        autoplay: true,<br>
+        randomOrder: true,<br>
+    }<br>
 },<br>
 
 ## Instructions:
