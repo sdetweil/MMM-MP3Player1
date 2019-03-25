@@ -26,7 +26,7 @@ npm install<br>
     disabled: false,
     module: "MMM-MP3Player",
     position: "top_right",
-    config: {<br>
+    config: {
         autoplay: true,
         randomOrder: true,
     }
