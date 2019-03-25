@@ -21,17 +21,17 @@ cd MMM-MP3Player<br>
 npm install<br>
 
 ## Usage:
-
-{<br>
-    disabled: false,<br>
-    module: "MMM-MP3Player",<br>
-    position: "top_right",<br>
+```
+{
+    disabled: false,
+    module: "MMM-MP3Player",
+    position: "top_right",
     config: {<br>
-        autoplay: true,<br>
-        randomOrder: true,<br>
-    }<br>
-},<br>
-
+        autoplay: true,
+        randomOrder: true,
+    }
+},
+```
 ## Instructions:
 
 you provide your own music, they must be mp3, wma, ogg, acc type files.<br>
