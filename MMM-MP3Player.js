@@ -30,51 +30,36 @@ Module.register("MMM-MP3Player", {
     Log.info("Starting module: " + MP3.name);
   },
 
-getDom: function() {
+  getDom: function () {
     var wrapper = document.createElement("div");
 
     if (MP3.config.musicData) {
-        const musicList = MP3.createElement("ul", "musicList", "musicList");
+      const fs = require('fs');
+      const path = require('path');
 
-        MP3.config.musicData.forEach(folderData => {
-            // Folder item
-            const folderItem = MP3.createElement("li", "folderItem", `folderItem-${folderData.folderName}`);
-            folderItem.innerHTML = `
-                <span class="folderName">${folderData.folderName}</span>
-                <i class="fa fa-chevron-down"></i> 
-            `; 
+      const musicFolder = path.resolve(MP3.config.musicData.musicPath);
+      const supportedExtensions = this.defaults.extensions; // Use module's default extensions
 
-            // Songs list within the folder
-            const songsList = MP3.createElement("ul", "songsList", `songsList-${folderData.folderName}`);
-            songsList.style.display = 'none'; // Initially hide the songs list
+      fs.readdir(musicFolder, (err, files) => {
+        if (err) {
+          console.error("Error reading music directory:", err);
+          // Handle the error - display message to user, etc. 
+        } else {
+          const musicFiles = files.filter(file => supportedExtensions.includes(path.extname(file).toLowerCase()));
 
-            folderData.songs.forEach(song => {
-                const songItem = MP3.createElement("li", "songItem", `songItem-${song}`);
-                songItem.innerHTML = song.substr(0, song.length - 4); 
-                songsList.appendChild(songItem);
+          if (musicFiles.length > 0) {
+            const musicList = MP3.createElement("ul", "musicList");
+
+            musicFiles.forEach(musicFile => {
+              const songItem = MP3.createElement('li', 'songItem');
+              songItem.innerHTML = musicFile.substr(0, musicFile.length - 4); 
+              songItem.addEventListener('click', () => {
+                MP3.playSong(musicFile);  // Assuming you want to play the song directly
+              });
+              musicList.appendChild(songItem);
             });
 
-            // Click event listeners
-            folderItem.addEventListener('click', () => {
-                songsList.style.display = songsList.style.display === 'none' ? 'block' : 'none'; // Toggle display
-                folderItem.querySelector('.fa').classList.toggle('fa-chevron-down');
-                folderItem.querySelector('.fa').classList.toggle('fa-chevron-up');
-            });
-
-            songsList.addEventListener('click', (event) => {
-                const clickedSongItem = event.target;
-                if (clickedSongItem.classList.contains('songItem')) {
-                    const songName = clickedSongItem.innerText;
-                    const folderName = folderData.folderName;
-                    MP3.playSong(folderName, songName);
-                }
-            });
-
-            folderItem.appendChild(songsList);
-            musicList.appendChild(folderItem);
-        });
-
-        wrapper.appendChild(musicList); 
+            wrapper.appendChild(musicList);
 
         // Add the rest of the existing code...
         MP3.mediaPlayer = MP3.createElement("div", "mediaPlayer", "mediaPlayer");
