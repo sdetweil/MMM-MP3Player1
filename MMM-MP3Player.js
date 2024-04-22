@@ -13,13 +13,15 @@ Module.register("MMM-MP3Player", {
   songTitle: null,
   mediaPlayer: null,
   dataAvailable: true,
-  curSong :0,
+
   curLength : 0,
   time: null,
   play: null,
   firstTime: true,
   substr: null,
-  
+  playing:null,
+  songlist: [],
+
   getStyles: function(){
     return ["MMM-MP3Player.css", "font-awesome.css"];
   },
@@ -35,7 +37,6 @@ getDom: function() {
 
     if (MP3.config.musicData) {
         const musicList = MP3.createElement("ul", "musicList", "musicList", wrapper);
-        let lastOpenList = null;  // This will keep track of the last open song list
 
         MP3.config.musicData.forEach(folderData => {
             // Folder item
@@ -48,72 +49,48 @@ getDom: function() {
             const songsList = MP3.createElement("ul", "songsList", `songsList-${folderData.folderName}`, folderItem);
             songsList.style.display = 'none'; // Initially hide the songs list
 
+
             folderData.songs.forEach(song => {
                 const  songParts = song.split('.')
                 const songItem = MP3.createElement("li", "songItem", `songItem-${song}`, songsList, songParts[0]);
                 songItem.songType=songParts[1]
-                //songItem.innerHTML = ;
-                //songsList.appendChild(songItem);
+                songItem.folderName = folderData.folderName
+                MP3.songlist.push(songItem)
+                songItem.addEventListener('click', (event) => {
+                    const clickedSongItem = event.target;
+                    //if (clickedSongItem.classList.contains('songItem')) {
+                        MP3.playSong(clickedSongItem) // folderName, songName,clickedSongItem.songType );
+                    //}
+                });
             });
 
             // Click event listeners
             folderItem.addEventListener('click', () => {
-                // Toggle the current list
-                const isCurrentlyOpen = songsList.style.display !== 'none';
-                
-                // Close all lists
-                document.querySelectorAll(".songsList").forEach(list => {
-                    list.style.display = 'none'; // Close all song lists
-                    list.parentElement.querySelector('.fa').className = "fa fa-chevron-down"; // Reset all chevrons
-                });
-
-                // If the current list was not open before, open it
-                if (!isCurrentlyOpen) {
-                    songsList.style.display = 'block';
-                    folderItem.querySelector('.fa').classList.toggle('fa-chevron-down');
-                    folderItem.querySelector('.fa').classList.toggle('fa-chevron-up');
-                }
+                songsList.style.display = songsList.style.display === 'none' ? 'block' : 'none'; // Toggle display
+                folderItem.querySelector('.fa').classList.toggle('fa-chevron-down');
+                folderItem.querySelector('.fa').classList.toggle('fa-chevron-up');
             });
-
-            songsList.addEventListener('click', (event) => {
-                event.stopPropagation(); // Prevent event from bubbling up to the folder
-                const clickedSongItem = event.target.closest('.songItem');
-                if (clickedSongItem) {
-                    const songName = clickedSongItem.innerText;
-                    const folderName = folderData.folderName;
-                    MP3.playSong(folderName, songName, clickedSongItem.songType);
-                }
-            });
-            //folderItem.appendChild(songsList);
-            //musicList.appendChild(folderItem);
+;
         });
 
-       // wrapper.appendChild(musicList);
 
         // Add the rest of the existing code...
         MP3.mediaPlayer = MP3.createElement("div", "mediaPlayer", "mediaPlayer", wrapper);
         MP3.audio = MP3.createElement("audio", "audioPlayer", "audioPlayer", MP3.mediaPlayer);
-
-    // Add event listeners for play and pause events
-    MP3.audio.addEventListener("play", () => {
-        MP3.play.getElementsByTagName('i')[0].className = "fa fa-pause"; // Change to pause icon when playing
-    });
-
-    MP3.audio.addEventListener("pause", () => {
-        MP3.play.getElementsByTagName('i')[0].className = "fa fa-play"; // Change to play icon when paused
-    });
-
+        // wait til song data loaded
         MP3.audio.addEventListener("loadeddata", () => {
             MP3.dataAvailable = true;
             MP3.curLength = MP3.audio.duration;
             MP3.updateDurationLabel(); 
+            MP3.audio.play();
         })
+        // handle play ended, check for autoplay
         MP3.audio.addEventListener("ended", () => {
             Log.log(" play ended")
             MP3.audio.currentTime = 0;
             if(MP3.config.autoPlay)
             {
-                MP3.loadNext(MP3.config.random)
+                MP3.loadNext(MP3.config.random, true)
             }
             else
                 MP3.mediaPlayer.classList.toggle("play");
@@ -122,13 +99,10 @@ getDom: function() {
         MP3.audio.addEventListener("timeupdate", () => {
           MP3.updateDurationLabel();
         })
-        //MP3.mediaPlayer.appendChild(MP3.audio);
 
         // Add the rest of the controls to MP3.mediaPlayer
         var controls = MP3.createElement("div", "controls", false, MP3.mediaPlayer);
         MP3.songTitle = MP3.createElement("span", "title", "songTitle", controls);
-        MP3.setCurrentSong(MP3.curSong);
-        //controls.appendChild(MP3.songTitle);
 
         var discArea = MP3.createElement("div", "discarea", false, MP3.mediaPlayer);
         MP3.createElement("div", "disc", false, discArea);
@@ -143,77 +117,71 @@ getDom: function() {
 
       //  Previous Button
       var prev = MP3.createButton("back", "prevButton", "fa fa-backward", buttons);
+      // previous button handler
       prev.addEventListener("click", () => {
-        MP3.mediaPlayer.classList.toggle("play");
+        //MP3.mediaPlayer.classList.toggle("play");
         MP3.dataAvailable = false;
-        MP3.loadNext(MP3.config.random);
-        MP3.audio.play();
-        MP3.play.getElementsByTagName('i')[0].className = "fa fa-pause";
+        MP3.loadNext(MP3.config.random,false);
       }, false),
-      //buttons.appendChild(prev);
 
       //  Play Button
       MP3.play = MP3.createButton("play", "playButton", "fa fa-play", buttons);
+      // play button handler
       MP3.play.addEventListener("click", () => {
         MP3.mediaPlayer.classList.toggle("play");
         if (MP3.audio.paused) {
           setTimeout(() => {
-            MP3.audio.play();
+              MP3.loadNext(MP3.config.random,true)
           }, 300);
-          MP3.play.getElementsByTagName('i')[0].className = "fa fa-pause";
+          //MP3.play.getElementsByTagName('i')[0].className = "fa fa-pause";
           MP3.timer = setInterval(MP3.updateDurationLabel, 100);
         } else {
-          //MP3.loadNext(MP3.config.random);
+          //we were NOT paused, so playing
+          // stop
           MP3.play.getElementsByTagName('i')[0].className = "fa fa-play";
           clearInterval(MP3.timer);
+          if(MP3.playing)
+            MP3.playing.classList.toggle("playing")
           MP3.audio.pause();
         }
       }, false);
-     // buttons.appendChild(MP3.play);
 
       //  Stop Button
       var stop = MP3.createButton("stop", "stopButton", "fa fa-stop", buttons);
+      // stop playing button handler
       stop.addEventListener("click", () => {
         MP3.mediaPlayer.classList.remove("play");
         MP3.audio.pause();
         MP3.audio.currentTime = 0;
+        if(MP3.playing)
+          MP3.playing.classList.remove("playing")
         MP3.play.getElementsByTagName('i')[0].className = "fa fa-play";
         MP3.updateDurationLabel();
       }, false);
-      //buttons.appendChild(stop);
 
       //  Next Button
       var next = MP3.createButton("next", "nextButton", "fa fa-forward", buttons);
+      // next button handler
       next.addEventListener("click", () => {
         MP3.mediaPlayer.classList.toggle("play");
         MP3.dataAvailable = false;
-        MP3.loadNext(MP3.config.random);
-        MP3.play.getElementsByTagName('i')[0].className = "fa fa-play";
+        MP3.loadNext(MP3.config.random, true);
       }, false);
 
-     // buttons.appendChild(next);
+      var subControls = MP3.createElement("div", "subControls", false, controls);
+      var duration = MP3.createElement("span", "duration", "currentDuration", subControls, "00:00" + "&nbsp&nbsp&nbsp");
+      //duration.innerHTML = ;
+      //subControls.appendChild(duration);
 
-       // controls.appendChild(buttons);
+      var volumeSlider = MP3.createElement("input", "volumeSlider", "volumeSlider", subControls);
+      volumeSlider.type = "range";
+      volumeSlider.min = "0";
+      volumeSlider.max = "1";
+      volumeSlider.step = "0.01";
+      volumeSlider.addEventListener("input", () => {
+          MP3.audio.volume = parseFloat(volumeSlider.value);
+      }, false);
 
-        var subControls = MP3.createElement("div", "subControls", false, controls);
-        var duration = MP3.createElement("span", "duration", "currentDuration", subControls, "00:00" + "&nbsp&nbsp&nbsp");
-        //duration.innerHTML = ;
-        //subControls.appendChild(duration);
-
-        var volumeSlider = MP3.createElement("input", "volumeSlider", "volumeSlider", subControls);
-        volumeSlider.type = "range";
-        volumeSlider.min = "0";
-        volumeSlider.max = "1";
-        volumeSlider.step = "0.01";
-        volumeSlider.addEventListener("input", () => {
-            MP3.audio.volume = parseFloat(volumeSlider.value);
-        }, false);
-
-        //subControls.appendChild(volumeSlider);
-        //controls.appendChild(subControls);
-       // MP3.mediaPlayer.appendChild(controls);
-
-        //wrapper.appendChild(MP3.mediaPlayer);
     }
 
     if(MP3.firstTime && MP3.config.autoPlay){
@@ -221,13 +189,6 @@ getDom: function() {
         MP3.firstTime=false;
     }
     return wrapper;
-  },
-
-  playSong: function(folderName, songName, songtype) {
-      const songPath = MP3.config.musicPath + '/' + folderName + '/' + songName+'.'+songtype;
-      MP3.audio.src = songPath;
-      MP3.songTitle.innerHTML = songName;
-      MP3.audio.play();
   },
 
   createElement: function(type, className, id, parent=null, value=null){
@@ -272,23 +233,72 @@ getDom: function() {
     return minutesZero + minutes.toString() + ":" + secondsZero + seconds.toString()
   },
   
-  setCurrentSong: function(index){
-    /*
-      if(MP3.audio!= undefined){
-        MP3.audio.src = MP3.config.musicPath + '/' + MP3.config.songs[index];
-        MP3.songTitle.innerHTML = MP3.config.songs[index].substr(0, MP3.config.songs[index].length - 4);
-        MP3.curSong = index;
-      }*/
+  getRandomIndex(max) {
+    return Math.floor(Math.random() * max);
   },
 
-  loadNext: function(next){
-   let index=0;
+
+  playSong: function(songItem) { //folderName, songName, songtype) {
+
+      // filter the songs for one that is playing
+      let was_playing= MP3.songlist.filter(x=>{
+            if(x.classList.contains("playing"))
+              return true
+      })
+      // if something was playing
+      if(was_playing.length)
+        was_playing[0].classList.toggle('playing')
+
+      // say this songItem islaying
+      songItem.classList.toggle('playing')
+
+      // get its file path
+      const songPath = MP3.config.musicPath + '/' + songItem.folderName + '/' +songItem.innerText+'.'+songItem.songType;
+      // set the song title
+      MP3.songTitle.innerText = songItem.innerText;
+      // save is as the playing item
+      MP3.playing=songItem
+      // set this last, causes the loaded event
+      MP3.audio.src = songPath;
+  },
+
+
+  loadNext: function(random, Next_or_Previous){
+      // lets start at 1st song
+      let index=0;
       console.log("loadNext: Autoplay:", MP3.config.autoPlay); // Add this line for logging
+      // stop any active play
       MP3.audio.pause();
-      if(next)  index= (MP3.curSong + 1) % MP3.config.songs.length;
-      else      index = (MP3.curSong - 1) < 0 ? MP3.config.songs.length - 1 : MP3.curSong - 1;
-      MP3.setCurrentSong(index);
-      MP3.audio.play();
+      // assume unknown 1st song
+      let currentIndex=-1
+      // was ther a previous? playing or not
+      if(MP3.playing){
+        // make sure not listed as playing
+        MP3.playing.classList.remove("playing")
+        // get the last playing index
+        currentIndex=MP3.songlist.indexOf(MP3.playing)
+      }
+      if(random){
+        // if only one entry, no point doing random
+        if(MP3.songlist.length>1){
+
+          currentIndex==0
+          // force loop, if it comes back with the same index , do it again
+          while(index==currentIndex){ index=MP3.getRandomIndex(MP3.songlist.length-1)}
+        } // otherwise ibdex already set to 0 and there is only 1 item
+
+      } else {
+        // not random, increment or decrement as requested, don't fall off the end
+        if(Next_or_Previous)  index= (currentIndex+1) >= MP3.songlist.length?0: currentIndex+1
+          // or go before the 1st
+        else      index = (currentIndex- 1) < 0 ? MP3.songlist.length - 1 :currentIndex - 1;
+      }
+      //  set the play button to pause icon
+      MP3.play.getElementsByTagName('i')[0].className = "fa fa-pause";
+      // save the last played
+      MP3.playing=MP3.songlist[index]
+      // play it
+      MP3.playSong(MP3.playing);
   },
 
   notificationReceived: function (notification, payload) {
@@ -299,8 +309,6 @@ getDom: function() {
   socketNotificationReceived: function(notification, payload){
     if(notification === "RETURNED_MUSIC")
       MP3.config.musicData = payload.musicData;
-      // set the initial song index 
-      MP3.setCurrentSong(0);
       // paint the player
       MP3.updateDom(2);
   },
