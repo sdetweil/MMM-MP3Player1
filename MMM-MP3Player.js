@@ -30,45 +30,84 @@ Module.register("MMM-MP3Player", {
     Log.info("Starting module: " + MP3.name);
   },
 
-  getDom: function () {
+getDom: function() {
     var wrapper = document.createElement("div");
 
     if (MP3.config.musicData) {
-      const fs = require('fs');
-      const path = require('path');
+        const musicList = MP3.createElement("ul", "musicList", "musicList", wrapper);
+        let lastOpenList = null;  // This will keep track of the last open song list
 
-      const musicFolder = path.resolve(MP3.config.musicData.musicPath);
-      const supportedExtensions = this.defaults.extensions; // Use module's default extensions
+        MP3.config.musicData.forEach(folderData => {
+            // Folder item
+            const folderItem = MP3.createElement("li", "folderItem", `folderItem-${folderData.folderName}`,musicList,
+            `<span class="folderName">${folderData.folderName}</span>
+                <i class="fa fa-chevron-down"></i> 
+            `);
 
-      fs.readdir(musicFolder, (err, files) => {
-        if (err) {
-          console.error("Error reading music directory:", err);
-          // Handle the error - display message to user, etc. 
-        } else {
-          const musicFiles = files.filter(file => supportedExtensions.includes(path.extname(file).toLowerCase()));
+            // Songs list within the folder
+            const songsList = MP3.createElement("ul", "songsList", `songsList-${folderData.folderName}`, folderItem);
+            songsList.style.display = 'none'; // Initially hide the songs list
 
-          if (musicFiles.length > 0) {
-            const musicList = MP3.createElement("ul", "musicList");
-
-            musicFiles.forEach(musicFile => {
-              const songItem = MP3.createElement('li', 'songItem');
-              songItem.innerHTML = musicFile.substr(0, musicFile.length - 4); 
-              songItem.addEventListener('click', () => {
-                MP3.playSong(musicFile);  // Assuming you want to play the song directly
-              });
-              musicList.appendChild(songItem);
+            folderData.songs.forEach(song => {
+                const  songParts = song.split('.')
+                const songItem = MP3.createElement("li", "songItem", `songItem-${song}`, songsList, songParts[0]);
+                songItem.songType=songParts[1]
+                //songItem.innerHTML = ;
+                //songsList.appendChild(songItem);
             });
 
-            wrapper.appendChild(musicList);
+            // Click event listeners
+            folderItem.addEventListener('click', () => {
+                // Toggle the current list
+                const isCurrentlyOpen = songsList.style.display !== 'none';
+                
+                // Close all lists
+                document.querySelectorAll(".songsList").forEach(list => {
+                    list.style.display = 'none'; // Close all song lists
+                    list.parentElement.querySelector('.fa').className = "fa fa-chevron-down"; // Reset all chevrons
+                });
+
+                // If the current list was not open before, open it
+                if (!isCurrentlyOpen) {
+                    songsList.style.display = 'block';
+                    folderItem.querySelector('.fa').classList.toggle('fa-chevron-down');
+                    folderItem.querySelector('.fa').classList.toggle('fa-chevron-up');
+                }
+            });
+
+            songsList.addEventListener('click', (event) => {
+                event.stopPropagation(); // Prevent event from bubbling up to the folder
+                const clickedSongItem = event.target.closest('.songItem');
+                if (clickedSongItem) {
+                    const songName = clickedSongItem.innerText;
+                    const folderName = folderData.folderName;
+                    MP3.playSong(folderName, songName, clickedSongItem.songType);
+                }
+            });
+            //folderItem.appendChild(songsList);
+            //musicList.appendChild(folderItem);
+        });
+
+       // wrapper.appendChild(musicList);
 
         // Add the rest of the existing code...
-        MP3.mediaPlayer = MP3.createElement("div", "mediaPlayer", "mediaPlayer");
-        MP3.audio = MP3.createElement("audio", "audioPlayer", "audioPlayer");
+        MP3.mediaPlayer = MP3.createElement("div", "mediaPlayer", "mediaPlayer", wrapper);
+        MP3.audio = MP3.createElement("audio", "audioPlayer", "audioPlayer", MP3.mediaPlayer);
+
+    // Add event listeners for play and pause events
+    MP3.audio.addEventListener("play", () => {
+        MP3.play.getElementsByTagName('i')[0].className = "fa fa-pause"; // Change to pause icon when playing
+    });
+
+    MP3.audio.addEventListener("pause", () => {
+        MP3.play.getElementsByTagName('i')[0].className = "fa fa-play"; // Change to play icon when paused
+    });
+
         MP3.audio.addEventListener("loadeddata", () => {
             MP3.dataAvailable = true;
             MP3.curLength = MP3.audio.duration;
             MP3.updateDurationLabel(); 
-        }),
+        })
         MP3.audio.addEventListener("ended", () => {
             Log.log(" play ended")
             MP3.audio.currentTime = 0;
@@ -78,32 +117,32 @@ Module.register("MMM-MP3Player", {
             }
             else
                 MP3.mediaPlayer.classList.toggle("play");
-        }),
+        })
 
-MP3.audio.addEventListener("timeupdate", () => {
-  MP3.updateDurationLabel();
-}),
-        MP3.mediaPlayer.appendChild(MP3.audio);
+        MP3.audio.addEventListener("timeupdate", () => {
+          MP3.updateDurationLabel();
+        })
+        //MP3.mediaPlayer.appendChild(MP3.audio);
 
         // Add the rest of the controls to MP3.mediaPlayer
-        var controls = MP3.createElement("div", "controls", false);
-        MP3.songTitle = MP3.createElement("span", "title", "songTitle");
+        var controls = MP3.createElement("div", "controls", false, MP3.mediaPlayer);
+        MP3.songTitle = MP3.createElement("span", "title", "songTitle", controls);
         MP3.setCurrentSong(MP3.curSong);
-        controls.appendChild(MP3.songTitle);
+        //controls.appendChild(MP3.songTitle);
 
-        var discArea = MP3.createElement("div", "discarea", false);
-        discArea.appendChild(MP3.createElement("div", "disc", false));
-        var stylus = MP3.createElement("div", "stylus", false);
-        stylus.appendChild(MP3.createElement("div", "pivot", false));
-        stylus.appendChild(MP3.createElement("div", "arm", false));
-        stylus.appendChild(MP3.createElement("div", "head", false));
-        discArea.appendChild(stylus);
-        MP3.mediaPlayer.appendChild(discArea);
+        var discArea = MP3.createElement("div", "discarea", false, MP3.mediaPlayer);
+        MP3.createElement("div", "disc", false, discArea);
+        var stylus = MP3.createElement("div", "stylus", false, discArea);
+        MP3.createElement("div", "pivot", false, stylus);
+        MP3.createElement("div", "arm", false, stylus);
+        MP3.createElement("div", "head", false, stylus);
+        //discArea.appendChild(stylus);
+        //MP3.mediaPlayer.appendChild(discArea);
 
-      var buttons = MP3.createElement("div", "buttons", false);
+      var buttons = MP3.createElement("div", "buttons", false, controls);
 
       //  Previous Button
-      var prev = MP3.createButton("back", "prevButton", "fa fa-backward");
+      var prev = MP3.createButton("back", "prevButton", "fa fa-backward", buttons);
       prev.addEventListener("click", () => {
         MP3.mediaPlayer.classList.toggle("play");
         MP3.dataAvailable = false;
@@ -111,10 +150,10 @@ MP3.audio.addEventListener("timeupdate", () => {
         MP3.audio.play();
         MP3.play.getElementsByTagName('i')[0].className = "fa fa-pause";
       }, false),
-      buttons.appendChild(prev);
+      //buttons.appendChild(prev);
 
       //  Play Button
-      MP3.play = MP3.createButton("play", "playButton", "fa fa-play");
+      MP3.play = MP3.createButton("play", "playButton", "fa fa-play", buttons);
       MP3.play.addEventListener("click", () => {
         MP3.mediaPlayer.classList.toggle("play");
         if (MP3.audio.paused) {
@@ -130,10 +169,10 @@ MP3.audio.addEventListener("timeupdate", () => {
           MP3.audio.pause();
         }
       }, false);
-      buttons.appendChild(MP3.play);
+     // buttons.appendChild(MP3.play);
 
       //  Stop Button
-      var stop = MP3.createButton("stop", "stopButton", "fa fa-stop");
+      var stop = MP3.createButton("stop", "stopButton", "fa fa-stop", buttons);
       stop.addEventListener("click", () => {
         MP3.mediaPlayer.classList.remove("play");
         MP3.audio.pause();
@@ -141,26 +180,27 @@ MP3.audio.addEventListener("timeupdate", () => {
         MP3.play.getElementsByTagName('i')[0].className = "fa fa-play";
         MP3.updateDurationLabel();
       }, false);
-      buttons.appendChild(stop);
+      //buttons.appendChild(stop);
 
       //  Next Button
-      var next = MP3.createButton("next", "nextButton", "fa fa-forward");
+      var next = MP3.createButton("next", "nextButton", "fa fa-forward", buttons);
       next.addEventListener("click", () => {
         MP3.mediaPlayer.classList.toggle("play");
         MP3.dataAvailable = false;
         MP3.loadNext(MP3.config.random);
         MP3.play.getElementsByTagName('i')[0].className = "fa fa-play";
       }, false);
-      buttons.appendChild(next);
 
-        controls.appendChild(buttons);
+     // buttons.appendChild(next);
 
-        var subControls = MP3.createElement("div", "subControls", false);
-        var duration = MP3.createElement("span", "duration", "currentDuration");
-        duration.innerHTML = "00:00" + "&nbsp&nbsp&nbsp";
-        subControls.appendChild(duration);
+       // controls.appendChild(buttons);
 
-        var volumeSlider = MP3.createElement("input", "volumeSlider", "volumeSlider");
+        var subControls = MP3.createElement("div", "subControls", false, controls);
+        var duration = MP3.createElement("span", "duration", "currentDuration", subControls, "00:00" + "&nbsp&nbsp&nbsp");
+        //duration.innerHTML = ;
+        //subControls.appendChild(duration);
+
+        var volumeSlider = MP3.createElement("input", "volumeSlider", "volumeSlider", subControls);
         volumeSlider.type = "range";
         volumeSlider.min = "0";
         volumeSlider.max = "1";
@@ -169,11 +209,11 @@ MP3.audio.addEventListener("timeupdate", () => {
             MP3.audio.volume = parseFloat(volumeSlider.value);
         }, false);
 
-        subControls.appendChild(volumeSlider);
-        controls.appendChild(subControls);
-        MP3.mediaPlayer.appendChild(controls);
+        //subControls.appendChild(volumeSlider);
+        //controls.appendChild(subControls);
+       // MP3.mediaPlayer.appendChild(controls);
 
-        wrapper.appendChild(MP3.mediaPlayer);
+        //wrapper.appendChild(MP3.mediaPlayer);
     }
 
     if(MP3.firstTime && MP3.config.autoPlay){
@@ -181,40 +221,48 @@ MP3.audio.addEventListener("timeupdate", () => {
         MP3.firstTime=false;
     }
     return wrapper;
-},
+  },
 
-playSong: function(folderName, songName) {
-    const songPath = MP3.config.musicPath + '/' + folderName + '/' + songName;
-    MP3.audio.src = songPath; 
-    MP3.songTitle.innerHTML = songName;
-    MP3.audio.play();
-},
+  playSong: function(folderName, songName, songtype) {
+      const songPath = MP3.config.musicPath + '/' + folderName + '/' + songName+'.'+songtype;
+      MP3.audio.src = songPath;
+      MP3.songTitle.innerHTML = songName;
+      MP3.audio.play();
+  },
 
-  createElement: function(type, className, id){
+  createElement: function(type, className, id, parent=null, value=null){
     var elem = document.createElement(type);
     if(className) elem.className = className;
     if(id)  elem.id = id;
+    if(value){
+      if( typeof value === 'string')
+        elem.innerHTML=value
+    }
+    if(parent)
+      parent.appendChild(elem)
     return elem;
   },
 
-  createButton: function(className, id, icon){
+  createButton: function(className, id, icon, parent=null){
     var button = document.createElement('button');
     button.className = className;
     button.id = id;
     var ico = document.createElement("i");
     ico.className = icon;
     button.appendChild(ico);
+    if(parent)
+      parent.appendChild(button)
     return button;
   },
 
-updateDurationLabel: function() {
-  var duration = document.getElementById('currentDuration');
-  if (MP3.dataAvailable && MP3.audio.duration > 0) {
-    duration.innerText = MP3.parseTime(MP3.audio.currentTime) + " / " + MP3.parseTime(MP3.audio.duration);
-  } else {
-    duration.innerText = "00:00 / 00:00";
-  }
-},
+  updateDurationLabel: function() {
+    var duration = document.getElementById('currentDuration');
+    if (MP3.dataAvailable && MP3.audio.duration > 0) {
+      duration.innerText = MP3.parseTime(MP3.audio.currentTime) + " / " + MP3.parseTime(MP3.audio.duration);
+    } else {
+      duration.innerText = "00:00 / 00:00";
+    }
+  },
 
   parseTime: function(time){
     const minutes = Math.floor(time / 60)
@@ -225,12 +273,14 @@ updateDurationLabel: function() {
   },
   
   setCurrentSong: function(index){
+    /*
       if(MP3.audio!= undefined){
         MP3.audio.src = MP3.config.musicPath + '/' + MP3.config.songs[index];
         MP3.songTitle.innerHTML = MP3.config.songs[index].substr(0, MP3.config.songs[index].length - 4);
         MP3.curSong = index;
-      }
+      }*/
   },
+
   loadNext: function(next){
    let index=0;
       console.log("loadNext: Autoplay:", MP3.config.autoPlay); // Add this line for logging
@@ -248,7 +298,7 @@ updateDurationLabel: function() {
   
   socketNotificationReceived: function(notification, payload){
     if(notification === "RETURNED_MUSIC")
-      MP3.config.songs = payload.songs;
+      MP3.config.musicData = payload.musicData;
       // set the initial song index 
       MP3.setCurrentSong(0);
       // paint the player
