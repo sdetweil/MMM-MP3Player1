@@ -37,6 +37,7 @@ getDom: function() {
 
     if (MP3.config.musicData) {
         const musicList = MP3.createElement("ul", "musicList", "musicList", wrapper);
+        let currentlyOpenSongsList = null; 
 
         MP3.config.musicData.forEach(folderData => {
             // Folder item
@@ -57,6 +58,7 @@ getDom: function() {
                 songItem.folderName = folderData.folderName
                 MP3.songlist.push(songItem)
                 songItem.addEventListener('click', (event) => {
+                    event.stopPropagation();
                     const clickedSongItem = event.target;
                     //if (clickedSongItem.classList.contains('songItem')) {
                         MP3.playSong(clickedSongItem) // folderName, songName,clickedSongItem.songType );
@@ -66,9 +68,16 @@ getDom: function() {
 
             // Click event listeners
             folderItem.addEventListener('click', () => {
-                songsList.style.display = songsList.style.display === 'none' ? 'block' : 'none'; // Toggle display
+                if (currentlyOpenSongsList && currentlyOpenSongsList !== songsList) {
+                    currentlyOpenSongsList.style.display = 'none'; // Close the currently open list
+                    currentlyOpenSongsList.parentNode.querySelector('.fa').classList.add('fa-chevron-down');
+                    currentlyOpenSongsList.parentNode.querySelector('.fa').classList.remove('fa-chevron-up');
+                }
+                // Toggle the clicked list
+                songsList.style.display = songsList.style.display === 'none' ? 'block' : 'none';
                 folderItem.querySelector('.fa').classList.toggle('fa-chevron-down');
                 folderItem.querySelector('.fa').classList.toggle('fa-chevron-up');
+                currentlyOpenSongsList = (songsList.style.display === 'block') ? songsList : null; 
             });
 ;
         });
