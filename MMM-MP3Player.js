@@ -138,20 +138,25 @@ getDom: function() {
       // play button handler
       MP3.play.addEventListener("click", () => {
         MP3.mediaPlayer.classList.toggle("play");
-        if (MP3.audio.paused) {
-          setTimeout(() => {
-              MP3.loadNext(MP3.config.random,true)
-          }, 300);
-          //MP3.play.getElementsByTagName('i')[0].className = "fa fa-pause";
+        if (MP3.audio.paused && MP3.playing) {  // if paused and were playing (paused is true even if no song yet picked)
+          // resume playing this song
+          MP3.audio.play();
+          //MP3.playing= true;  // don't reset point to playing songItem
+          MP3.play.getElementsByTagName('i')[0].className = "fa fa-pause";
           MP3.timer = setInterval(MP3.updateDurationLabel, 100);
-        } else {
-          //we were NOT paused, so playing
-          // stop
-          MP3.play.getElementsByTagName('i')[0].className = "fa fa-play";
-          clearInterval(MP3.timer);
-          if(MP3.playing)
+        } else {  // not paused
+          // were we playing?
+          if(MP3.playing){
+            // we were playing
+            // pause now
+            MP3.play.getElementsByTagName('i')[0].className = "fa fa-play";
+            clearInterval(MP3.timer);
             MP3.playing.classList.toggle("playing")
-          MP3.audio.pause();
+            // so pause
+            MP3.audio.pause();
+          } else { // NOT playing, and not autoplay, so startup (forward)
+            MP3.loadNext(MP3.config.random, true)
+          }
         }
       }, false);
 
@@ -162,8 +167,10 @@ getDom: function() {
         MP3.mediaPlayer.classList.remove("play");
         MP3.audio.pause();
         MP3.audio.currentTime = 0;
-        if(MP3.playing)
+        if(MP3.playing){
           MP3.playing.classList.remove("playing")
+          MP3.playing=false
+        }
         MP3.play.getElementsByTagName('i')[0].className = "fa fa-play";
         MP3.updateDurationLabel();
       }, false);
