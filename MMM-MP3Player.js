@@ -41,11 +41,12 @@ Module.register("MMM-MP3Player", {
     var wrapper = document.createElement("div");
 
     if (MP3.config.musicData) {
-        const topmenu = MP3.createElement("ul", "topMenu","tomeMenu", wrapper);
+
+        const topmenu = MP3.createElement("ul", "topMenu","topMenu", wrapper);
           topmenu.style["margin-block"]="0em"
         MP3.topmenuli= MP3.createElement("li", "topMenuli", "topMenuli", topmenu,
-             '<span>Music list</span><i class="fa fa-chevron-down"></i>' );
-
+             'Music list<i class="fa fa-chevron-down"></i>' );
+        MP3.topmenuli.style='text-align: start;'
         currentlyOpenSongsList= null;
 
         MP3.musicList = MP3.createElement("ul", "musicList", "musicList", MP3.topmenuli);
@@ -188,7 +189,7 @@ Module.register("MMM-MP3Player", {
         if(MP3.playing){
           MP3.playing.classList.remove("playing")
           MP3.playing=false
-          MP3.songTitle.innerText = "";
+          MP3.songTitle.innerText = "";  // clear the songname
         }
         MP3.play.getElementsByTagName('i')[0].className = "fa fa-play";
         MP3.updateDurationLabel();
