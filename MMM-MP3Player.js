@@ -32,16 +32,31 @@ Module.register("MMM-MP3Player", {
     Log.info("Starting module: " + MP3.name);
   },
 
-getDom: function() {
+  clickMenuDown: function(){
+            MP3.topmenuli.querySelector('.fa').classList.toggle('fa-chevron-down');
+            MP3.topmenuli.querySelector('.fa').classList.toggle('fa-chevron-up');
+            MP3.musicList.style.display = MP3.musicList.style.display === 'none' ? 'block' : 'none';
+  },
+  getDom: function() {
     var wrapper = document.createElement("div");
 
     if (MP3.config.musicData) {
-        const musicList = MP3.createElement("ul", "musicList", "musicList", wrapper);
-        let currentlyOpenSongsList = null; 
+        const topmenu = MP3.createElement("ul", "topMenu","tomeMenu", wrapper);
+          topmenu.style["margin-block"]="0em"
+        MP3.topmenuli= MP3.createElement("li", "topMenuli", "topMenuli", topmenu,
+             '<span>Music list</span><i class="fa fa-chevron-down"></i>' );
+
+        currentlyOpenSongsList= null;
+
+        MP3.musicList = MP3.createElement("ul", "musicList", "musicList", MP3.topmenuli);
+        MP3.musicList.style.display = 'none'
+        MP3.topmenuli.addEventListener('click', () => {
+            MP3.clickMenuDown()
+        });
 
         MP3.config.musicData.forEach(folderData => {
             // Folder item
-            const folderItem = MP3.createElement("li", "folderItem", `folderItem-${folderData.folderName}`,musicList,
+            const folderItem = MP3.createElement("li", "folderItem", `folderItem-${folderData.folderName}`,MP3.musicList,
             `<span class="folderName">${folderData.folderName}</span>
                 <i class="fa fa-chevron-down"></i> 
             `);
@@ -57,18 +72,21 @@ getDom: function() {
                 songItem.songType=songParts[1]
                 songItem.folderName = folderData.folderName
                 MP3.songlist.push(songItem)
+
                 songItem.addEventListener('click', (event) => {
-                    event.stopPropagation();
                     const clickedSongItem = event.target;
-                    //if (clickedSongItem.classList.contains('songItem')) {
-                        MP3.playSong(clickedSongItem) // folderName, songName,clickedSongItem.songType );
+                    MP3.playSong(clickedSongItem)
+                    MP3.clickMenuDown()
+                    event.stopPropagation()
                     //}
                 });
             });
 
+
+
             // Click event listeners
             folderItem.addEventListener('click', () => {
-                if (currentlyOpenSongsList && currentlyOpenSongsList !== songsList) {
+                if (currentlyOpenSongsList&& currentlyOpenSongsList!== songsList) {
                     currentlyOpenSongsList.style.display = 'none'; // Close the currently open list
                     currentlyOpenSongsList.parentNode.querySelector('.fa').classList.add('fa-chevron-down');
                     currentlyOpenSongsList.parentNode.querySelector('.fa').classList.remove('fa-chevron-up');
@@ -77,9 +95,9 @@ getDom: function() {
                 songsList.style.display = songsList.style.display === 'none' ? 'block' : 'none';
                 folderItem.querySelector('.fa').classList.toggle('fa-chevron-down');
                 folderItem.querySelector('.fa').classList.toggle('fa-chevron-up');
-                currentlyOpenSongsList = (songsList.style.display === 'block') ? songsList : null; 
+                currentlyOpenSongsList= (songsList.style.display === 'block') ? songsList : null;
+                event.stopPropagation();
             });
-;
         });
 
 
@@ -170,6 +188,7 @@ getDom: function() {
         if(MP3.playing){
           MP3.playing.classList.remove("playing")
           MP3.playing=false
+          MP3.songTitle.innerText = "";
         }
         MP3.play.getElementsByTagName('i')[0].className = "fa fa-play";
         MP3.updateDurationLabel();
