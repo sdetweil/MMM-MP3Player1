@@ -157,19 +157,23 @@ Module.register("MMM-MP3Player", {
       // play button handler
       MP3.play.addEventListener("click", () => {
         MP3.mediaPlayer.classList.toggle("play");
-        if (MP3.audio.paused && MP3.playing) {  // if paused and were playing (paused is true even if no song yet picked)
+        // if paused and were playing (paused is true even if no song yet picked)
+        if (MP3.audio.paused && MP3.playing) {
           // resume playing this song
           MP3.audio.play();
-          //MP3.playing= true;  // don't reset point to playing songItem
+          // flip the players play button to pause icon
           MP3.play.getElementsByTagName('i')[0].className = "fa fa-pause";
+          // and resume timer
           MP3.timer = setInterval(MP3.updateDurationLabel, 100);
         } else {  // not paused
           // were we playing?
           if(MP3.playing){
             // we were playing
-            // pause now
+            // change play button icon to play
             MP3.play.getElementsByTagName('i')[0].className = "fa fa-play";
+            // stop the count timer
             clearInterval(MP3.timer);
+            // turn off playing
             MP3.playing.classList.toggle("playing")
             // so pause
             MP3.audio.pause();
@@ -302,25 +306,28 @@ Module.register("MMM-MP3Player", {
   loadNext: function(random, Next_or_Previous){
       // lets start at 1st song
       let index=0;
-      console.log("loadNext: Autoplay:", MP3.config.autoPlay); // Add this line for logging
+      console.log("MP3 loadNext: Autoplay:", MP3.config.autoPlay); // Add this line for logging
       // stop any active play
       MP3.audio.pause();
       // assume unknown 1st song
       let currentIndex=-1
-      // was ther a previous? playing or not
+      // was there a previous? playing or not
       if(MP3.playing){
         // make sure not listed as playing
         MP3.playing.classList.remove("playing")
-        // get the last playing index
+        // get the index in the list of songs
         currentIndex=MP3.songlist.indexOf(MP3.playing)
+        // close the parent menu of the previous
+        MP3.playing.parentElement.click()
       }
+      // figure out what is the next song, random
       if(random){
         // if only one entry, no point doing random
         if(MP3.songlist.length>1){
 
           currentIndex==0
           // force loop, if it comes back with the same index , do it again
-          while(index==currentIndex){ index=MP3.getRandomIndex(MP3.songlist.length-1)}
+          while(index==currentIndex){ index=MP3.getRandomIndex(MP3.songlist.length)}
         } // otherwise ibdex already set to 0 and there is only 1 item
 
       } else {
@@ -331,8 +338,10 @@ Module.register("MMM-MP3Player", {
       }
       //  set the play button to pause icon
       MP3.play.getElementsByTagName('i')[0].className = "fa fa-pause";
-      // save the last played
+      // save the soong being played
       MP3.playing=MP3.songlist[index]
+      // open the menu of the author for this song
+      MP3.playing.parentElement.click()
       // play it
       MP3.playSong(MP3.playing);
   },
